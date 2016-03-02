@@ -9,7 +9,7 @@ The package can be installed as:
   1. Add cassette to your list of dependencies in `mix.exs`:
 
         def deps do
-          [{:cassette, "~> 0.0.2"}]
+          [{:cassette, "~> 1.0.0"}]
         end
 
   2. Ensure cassette is started before your application:
