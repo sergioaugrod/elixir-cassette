@@ -32,7 +32,7 @@ defmodule Cassette.Mixfile do
        files: ["lib", "support", "mix.exs", "README.md", "LICENSE.md", "CONTRIBUTING.md"],
        maintainers: ["Ricardo Hermida Ruiz"],
        licenses: ["MIT"],
-       links: %{"GitHub" => "https://github.com/locaweb/cassette-elixir",
+       links: %{"GitHub" => "https://github.com/locaweb/elixir-cassette",
                 "Docs" => "https://hexdocs.pm/cassette/#{version}"}]
   end
 
