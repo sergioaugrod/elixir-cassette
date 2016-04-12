@@ -63,4 +63,9 @@ defmodule Cassette.UserTest do
   test "has_raw_role? returns false when user is not a Cassette.User" do
     refute User.has_raw_role?(nil, "BLA")
   end
+
+  test "new/3 downcases the user type" do
+    assert "employee" = User.new("example", "Employee", ["EXAMPLE"]).type
+    assert "employee" = User.new("example", "EMPLOYEE", ["EXAMPLE"]).type
+  end
 end

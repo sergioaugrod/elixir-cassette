@@ -19,8 +19,8 @@ defmodule Cassette.AuthenticationTest do
   end
 
   @tag file_name: "success.xml"
-  test "handle_response/1 returns {:ok, User}", %{file_content: file_content} do
-    expected = User.new("example", ["ACME_ADMIN"])
+  test "handle_response/1 returns {:ok, User} with the user type", %{file_content: file_content} do
+    expected = User.new("example", "employee", ["ACME_ADMIN"])
     assert {:ok, ^expected} = Authentication.handle_response(file_content)
   end
 end

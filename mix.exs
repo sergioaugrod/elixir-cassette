@@ -1,7 +1,7 @@
 defmodule Cassette.Mixfile do
   use Mix.Project
 
-  def version, do: "1.0.0"
+  def version, do: "1.1.0"
 
   def project do
     [app: :cassette,
@@ -51,7 +51,7 @@ defmodule Cassette.Mixfile do
      {:exml, "~> 0.1"},
      {:ex_doc, "~> 0.11", only: :dev},
      {:earmark, "~> 0.1", only: :dev},
-     {:fake_cas, "~> 1.0", only: [:dev, :test]},
+     {:fake_cas, "~> 1.1", only: [:dev, :test]},
     ]
   end
 end

@@ -28,13 +28,14 @@ defmodule Cassette.Authentication do
   @spec extract_user(any) :: {:ok, Cassette.User.t} | {:error}
   defp extract_user(xml) do
     login = Exml.get(xml, "//cas:authenticationSuccess/cas:user")
+    type = Exml.get(xml, "//cas:authenticationSuccess/cas:attributes/cas:type")
     authorities  = Exml.get(xml, "//cas:authenticationSuccess/cas:attributes/cas:authorities")
     |> String.lstrip(?[)
     |> String.strip(?])
     |> String.split(", ")
 
     if login do
-      {:ok, User.new(login, authorities)}
+      {:ok, User.new(login, type, authorities)}
     else
       {:error}
     end
