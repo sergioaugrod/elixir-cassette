@@ -3,7 +3,7 @@ defmodule Cassette.User do
   This is the struct that represents the user returned by a Validation request
   """
 
-  defstruct login: "", authorities: MapSet.new([])
+  defstruct login: "", type: "", authorities: MapSet.new([])
 
   @type t :: %__MODULE__{login: String.t}
 
@@ -15,7 +15,11 @@ defmodule Cassette.User do
   Initializes a `Cassette.User` struct, mapping the list of authorities to it's internal representation
   """
   def new(login, authorities) do
-    %User{login: login, authorities: MapSet.new(authorities)}
+    new(login, "", authorities)
+  end
+
+  def new(login, type, authorities) do
+    %User{login: login, type: String.downcase(type), authorities: MapSet.new(authorities)}
   end
 
   @doc """
