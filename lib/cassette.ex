@@ -95,9 +95,4 @@ defmodule Cassette do
 
   use Cassette.Support
   use Application
-
-  @doc false
-  def start(_type, _args) do
-    Cassette.start
-  end
 end

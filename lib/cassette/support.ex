@@ -20,6 +20,10 @@ defmodule Cassette.Support do
       @name opts[:process_name] || :CassetteServer
       @config Keyword.get(opts, :config)
 
+      @spec start(term, term) :: GenServer.on_start
+
+      def start(_, _), do: start
+
       @spec start() :: GenServer.on_start
       @doc false
       def start do
@@ -36,6 +40,12 @@ defmodule Cassette.Support do
           {:error, {:already_started, pid}} -> {:ok, pid}
           other -> other
         end
+      end
+
+      @spec child_spec() :: Supervisor.Spec.spec
+
+      def child_spec do
+        {__MODULE__, {__MODULE__, :start, []}, :permanent, 5000, :worker, [__MODULE__]}
       end
 
       @spec config :: Cassette.Config.t

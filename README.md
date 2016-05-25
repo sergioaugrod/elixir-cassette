@@ -69,7 +69,23 @@ defmodule MyCas do
 end
 ```
 
-This other Cas service must be started as well with `MyCas.start` before it can be used.
+This other Cas service must be started as well with `MyCas.start` before it can be used or it may be added to your supervision tree:
+
+```elixir
+defmodule YourApp do
+  def start(_type, _args) do
+    import Supervisor.Spec, warn: false
+
+    children = [
+      # some other apps,
+      MyCas.child_spec
+    ]
+
+    opts = [strategy: :one_for_one, name: MyApp.Supervisor]
+    Supervisor.started(children, opts)
+  end
+end
+```
 
 ## Using self signed servers
 
