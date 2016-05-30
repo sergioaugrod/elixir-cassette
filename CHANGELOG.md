@@ -2,6 +2,17 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.2.2] - 2016-06-30
+### Fixed
+- Fixed a compile warning when using `Cassette.Support` macro with a custom config
+
+## [1.2.1] - 2016-06-30
+### Fixed
+- Fixed issues reported by `credo`
+
+## Changed
+- Make `Cassette.Support` servers by `Application`s too
+
 ## [1.2.0] - 2016-05-25
 ### Added
 - Macros on `Cassette.Support` now generate `start`, `start/2`
