@@ -17,6 +17,8 @@ defmodule Cassette.Support do
   """
   defmacro __using__(opts \\ []) do
     quote bind_quoted: [opts: opts] do
+      use Application
+
       @name opts[:process_name] || :CassetteServer
       @config Keyword.get(opts, :config)
 
