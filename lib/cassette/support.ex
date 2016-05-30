@@ -25,7 +25,6 @@ defmodule Cassette.Support do
       use Application
 
       @name opts[:process_name] || :CassetteServer
-      @config Keyword.get(opts, :config)
 
       @spec start(term, term) :: GenServer.on_start
 
@@ -64,7 +63,7 @@ defmodule Cassette.Support do
       Please refer to `Cassette.Config.t` for details
       """
       def config do
-        @config || Config.default
+        unquote(Macro.escape(opts[:config] || Config.default))
       end
 
       @spec tgt :: {:ok, String.t} | {:error, term}
@@ -93,7 +92,7 @@ defmodule Cassette.Support do
       end
 
       @doc false
-      def reload(cfg \\ config) do
+      def reload(cfg \\ Cassette.Config.default) do
         Server.reload(@name, cfg)
       end
     end

@@ -1,5 +1,5 @@
 defmodule Cassette.ServerIntegrationTest do
-  use ExUnit.Case, async: false
+  use ExUnit.Case, async: true
 
   alias Cassette.Server
 
