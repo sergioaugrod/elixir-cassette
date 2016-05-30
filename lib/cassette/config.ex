@@ -34,7 +34,7 @@ defmodule Cassette.Config do
     base_authority: String.t, service: String.t, tgt_ttl: non_neg_integer(),
     st_ttl: non_neg_integer(), validation_ttl: non_neg_integer()}
 
-  @spec default() :: Cassette.Config.t
+  @spec default() :: t
   @doc """
   Returns a configuration based on what is set in application environment and default values
 

@@ -5,7 +5,7 @@ defmodule Cassette.Authentication do
 
   alias Cassette.User
 
-  @spec handle_response(String.t) :: {:ok, Cassette.User.t} | {:error, String.t}
+  @spec handle_response(String.t) :: {:ok, User.t} | {:error, String.t}
   @doc """
   Extracts the authenticated user from validation response
 
@@ -25,14 +25,16 @@ defmodule Cassette.Authentication do
     end
   end
 
-  @spec extract_user(any) :: {:ok, Cassette.User.t} | {:error}
+  @spec extract_user(any) :: {:ok, User.t} | {:error}
   defp extract_user(xml) do
     login = Exml.get(xml, "//cas:authenticationSuccess/cas:user")
     type = Exml.get(xml, "//cas:authenticationSuccess/cas:attributes/cas:type")
-    authorities  = Exml.get(xml, "//cas:authenticationSuccess/cas:attributes/cas:authorities")
-    |> String.lstrip(?[)
-    |> String.strip(?])
-    |> String.split(", ")
+    authorities =
+      xml
+      |> Exml.get("//cas:authenticationSuccess/cas:attributes/cas:authorities")
+      |> String.lstrip(?[)
+      |> String.strip(?])
+      |> String.split(", ")
 
     if login do
       {:ok, User.new(login, type, authorities)}

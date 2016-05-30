@@ -15,6 +15,11 @@ defmodule Cassette.Support do
   Please refer to `Cassette` for usage
 
   """
+
+  alias Cassette.Config
+  alias Cassette.Server
+  alias Cassette.User
+
   defmacro __using__(opts \\ []) do
     quote bind_quoted: [opts: opts] do
       use Application
@@ -32,7 +37,7 @@ defmodule Cassette.Support do
         import Supervisor.Spec
 
         children = [
-          worker(Cassette.Server, [@name, config])
+          worker(Server, [@name, config])
         ]
 
         options = [strategy: :one_for_one, name: :"#{@name}.Supervisor"]
@@ -50,7 +55,7 @@ defmodule Cassette.Support do
         {__MODULE__, {__MODULE__, :start, []}, :permanent, 5000, :worker, [__MODULE__]}
       end
 
-      @spec config :: Cassette.Config.t
+      @spec config :: Config.t
       @doc """
       Returns the configuration used by this Cassette server
 
@@ -59,7 +64,7 @@ defmodule Cassette.Support do
       Please refer to `Cassette.Config.t` for details
       """
       def config do
-        @config || Cassette.Config.default
+        @config || Config.default
       end
 
       @spec tgt :: {:ok, String.t} | {:error, term}
@@ -67,7 +72,7 @@ defmodule Cassette.Support do
       Generates a Ticket Granting Ticket
       """
       def tgt do
-        Cassette.Server.tgt(@name)
+        Server.tgt(@name)
       end
 
       @spec st(String.t) :: {:ok, String.t} | {:error, term}
@@ -76,20 +81,20 @@ defmodule Cassette.Support do
       """
       def st(service) do
         {:ok, current_tgt} = tgt
-        Cassette.Server.st(@name, current_tgt, service)
+        Server.st(@name, current_tgt, service)
       end
 
-      @spec validate(String.t, String.t) :: {:ok, Cassette.User.t} | {:error, term}
+      @spec validate(String.t, String.t) :: {:ok, User.t} | {:error, term}
       @doc """
       Validates a given `ticket` against the given `service` or the service set in the configuration
       """
       def validate(ticket, service \\ config.service) do
-        Cassette.Server.validate(@name, ticket, service)
+        Server.validate(@name, ticket, service)
       end
 
       @doc false
       def reload(cfg \\ config) do
-        Cassette.Server.reload(@name, cfg)
+        Server.reload(@name, cfg)
       end
     end
   end

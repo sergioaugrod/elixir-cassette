@@ -2,15 +2,19 @@ defmodule Cassette.Server.State do
   @moduledoc """
   Struct to represent the internal state of the `Cassette.Server`
   """
-  defstruct config: Cassette.Config.default, tgt: {:tgt, 0, ""}, sts: %{}, validations: %{}
+
+  alias Cassette.Config
+  alias Cassette.User
+
+  defstruct config: Config.default, tgt: {:tgt, 0, ""}, sts: %{}, validations: %{}
 
   @type tgt :: {:tgt, non_neg_integer(), String.t}
   @type st :: {String.t, non_neg_integer()}
-  @type validation :: {Cassette.User.t, non_neg_integer()}
-  @type t :: %__MODULE__{config: Cassette.Config.t, tgt: tgt, sts: %{String.t => st},
+  @type validation :: {User.t, non_neg_integer()}
+  @type t :: %__MODULE__{config: Config.t, tgt: tgt, sts: %{String.t => st},
     validations: %{{String.t, String.t} => validation}}
 
-  @spec put_validation(t, String.t, {non_neg_integer, Cassette.User.t | nil}) :: t
+  @spec put_validation(t, String.t, {non_neg_integer, User.t | nil}) :: t
   @doc """
   Updates the validation cache for the given `{service, ticket}` pair with the returned user
   """

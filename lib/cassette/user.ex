@@ -10,7 +10,7 @@ defmodule Cassette.User do
   alias Cassette.User
   alias Cassette.Config
 
-  @spec new(String.t, [String.t]) :: Cassette.User.t
+  @spec new(String.t, [String.t]) :: User.t
   @doc """
   Initializes a `Cassette.User` struct, mapping the list of authorities to it's internal representation
   """
@@ -35,7 +35,7 @@ defmodule Cassette.User do
   This function returns false when user is not a Cassette.User.t
 
   """
-  @spec has_role?(Cassette.User.t, String.t) :: boolean
+  @spec has_role?(User.t, String.t) :: boolean
   def has_role?(user = %User{}, role) do
     User.has_role?(user, Config.default, role)
   end
@@ -51,7 +51,7 @@ defmodule Cassette.User do
   This function returns false when user is not a Cassette.User.t
 
   """
-  @spec has_role?(Cassette.User.t, Cassette.Config.t, String.t) :: boolean
+  @spec has_role?(User.t, Config.t, String.t) :: boolean
   def has_role?(user = %User{}, %Config{base_authority: base}, role) do
     User.has_raw_role?(user, to_raw_role(base, role))
   end
@@ -73,7 +73,7 @@ defmodule Cassette.User do
   This function returns false when user is not a Cassette.User.t
 
   """
-  @spec has_raw_role?(Cassette.User.t, String.t) :: boolean
+  @spec has_raw_role?(User.t, String.t) :: boolean
   def has_raw_role?(%User{authorities: authorities}, raw_role) do
     MapSet.member?(authorities, String.upcase("#{raw_role}"))
   end
