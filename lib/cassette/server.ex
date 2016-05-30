@@ -10,6 +10,19 @@ defmodule Cassette.Server do
   alias Cassette.Client.ValidateTicket
   alias Cassette.Config
   alias Cassette.Server.State
+  alias Cassette.User
+
+  @type tgt_request :: {:tgt, non_neg_integer()}
+  @type tgt_reply :: {:ok, String.t} | {:error, term}
+
+  @type st_request :: {:st, String.t, String.t, non_neg_integer()}
+  @type st_reply :: {:ok, String.t} | {:error, term}
+
+  @type validate_request :: {:validate, String.t, String.t, non_neg_integer()}
+  @type validate_reply :: {:ok, User.t} | {:error, term}
+
+  @type reload_request :: {:reload, Config.t}
+  @type reload_reply :: :ok
 
   @spec start_link(term, Config.t) :: GenServer.on_start
 
@@ -59,16 +72,16 @@ defmodule Cassette.Server do
     {:ok, %State{config: config}}
   end
 
-  @doc false
+  @doc """
+  Changes the internal state configuration to `config`
+  """
 
   def reload(server, config) do
     GenServer.call(server, {:reload, config})
   end
 
-  @spec handle_call({:validate, String.t, String.t, non_neg_integer()}, GenServer.from, State.t) ::
-    {:reply, {:ok, User.t} | {:error, term}, State.t}
-
-  @doc false
+  @spec handle_call(validate_request | st_request | tgt_request | reload_request, GenServer.from, State.t) ::
+    {:reply, validate_reply | tgt_reply | st_reply | reload_reply, State.t}
 
   def handle_call({:validate, ticket, service, now}, _from, state = %State{validations: validations, config: config}) do
     case evaluate_validation(config, service, ticket, Map.get(validations, {service, ticket}), now) do
@@ -80,11 +93,6 @@ defmodule Cassette.Server do
     end
   end
 
-  @spec handle_call({:st, String.t, String.t, non_neg_integer()}, GenServer.from, State.t) ::
-    {:reply, {:ok, String.t} | {:error, term}, State.t}
-
-  @doc false
-
   def handle_call({:st, current_tgt, service, now}, _from, state = %State{config: config, tgt: {:tgt, _, current_tgt}, sts: sts}) do
     case evaluate_st(config, current_tgt, service, Map.get(sts, service), now) do
       {:ok, new_st, expires_at} ->
@@ -93,11 +101,6 @@ defmodule Cassette.Server do
         {:reply, reply, state}
     end
   end
-
-  @spec handle_call({:tgt, non_neg_integer()}, GenServer.from, State.t) ::
-    {:reply, {:ok, String.t} | {:error, term}, State.t}
-
-  @doc false
 
   def handle_call({:tgt, now}, _from, state = %State{config: config, tgt: current_tgt}) when now > elem(current_tgt, 1) do
     case Client.tgt(config) do
@@ -108,16 +111,9 @@ defmodule Cassette.Server do
     end
   end
 
-  @spec handle_call({:tgt, non_neg_integer()}, GenServer.from, State.t) ::
-    {:reply, {:ok, String.t} | {:error, term}, State.t}
-
-  @doc false
-
   def handle_call({:tgt, _}, _from, state = %State{tgt: {:tgt, _, current_tgt}}) do
     {:reply, {:ok, current_tgt}, state}
   end
-
-  @doc false
 
   def handle_call({:reload, config = %Config{}}, _from, _state) do
     {:reply, :ok, %State{config: config}}
@@ -126,16 +122,12 @@ defmodule Cassette.Server do
   @spec evaluate_validation(Config.t, String.t, String.t, State.st, non_neg_integer()) ::
     {:ok, User.t, non_neg_integer()}
 
-  @doc false
-
   defp evaluate_validation(_, _, _, {user, expires_at}, now) when now < expires_at do
     {:ok, user, expires_at}
   end
 
   @spec evaluate_validation(Config.t, String.t, String.t, State.st, non_neg_integer()) ::
     {:ok, User.t, non_neg_integer()} | {:error, term}
-
-  @doc false
 
   defp evaluate_validation(config, service, ticket, _, _) do
     reply = case ValidateTicket.perform(config, ticket, service) do
@@ -151,16 +143,12 @@ defmodule Cassette.Server do
 
   @spec evaluate_st(Config.t, String.t, String.t, State.st, non_neg_integer()) :: {:ok, String.t, non_neg_integer()}
 
-  @doc false
-
   defp evaluate_st(_, _, _, {current_st, expires_at}, now) when now < expires_at do
     {:ok, current_st, expires_at}
   end
 
   @spec evaluate_st(Config.t, String.t, String.t, State.st, non_neg_integer()) ::
     {:ok, String.t, non_neg_integer()} | {:error, term}
-
-  @doc false
 
   defp evaluate_st(config, current_tgt, service, _, _) do
     reply = case Client.st(config, current_tgt, service) do
@@ -174,8 +162,6 @@ defmodule Cassette.Server do
   end
 
   @spec time_now :: non_neg_integer()
-
-  @doc false
 
   defp time_now do
     :calendar.datetime_to_gregorian_seconds(:calendar.local_time)
