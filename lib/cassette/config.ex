@@ -20,11 +20,25 @@ defmodule Cassette.Config do
   * `validation_ttl` - the ST validation cache time to live
   * `insecure` - boolean to allow connection even with ssl certificate check fails
 
-
   Any of those keys may be set in your Application environment (or the mix `config/config.exs`) as:
 
   ```elixir
   config :cassette, username: "john.doe"
+  ```
+
+  `Cassette.Server`s call the `resolve/1` function on this module to resolve any configuration using environment variables.
+  To use an environment variable set the value to `{:system, "SOME_ENVIRONMENT_VARIABLE"}`.
+
+  Or in `config.exs`:
+
+  ```elixir
+  config :cassette, username: {:system, "CASSETTE_USERNAME"}
+  ``
+
+  and configure your environment (provabably in something like `/etc/default/your_app`):
+
+  ```shell
+  export CASSETTE_USERNAME=acme
   ```
 
   Please check the `Cassette.Config.default/0` function.
@@ -53,5 +67,34 @@ defmodule Cassette.Config do
     default_values
     |> Map.keys
     |> Enum.reduce(default_values, &(Map.put(&2, &1, env_or_default.(&1))))
+  end
+
+  @doc """
+  Resolves config by fetching environment variables when values are in the form:
+
+  ```elixir
+  {:system, "SOME_ENVIRONMENT_VARIABLE"}
+
+  ```
+
+  The value will be fetched from the `SOME_ENVIRONMENT_VARIABLE` variable.
+  If that variable is `nil`, the default value in `Cassette.Config.t` will be used
+  """
+
+  @spec resolve(t) :: t
+
+  def resolve(config) do
+    default_values = %Cassette.Config{}
+
+    env_or_default = fn(map) ->
+      fn(key) ->
+        case Map.get(map, key) do
+          {:system, var} -> {key, System.get_env(var) || Map.get(default_values, key)}
+          value -> {key, value}
+        end
+      end
+    end
+
+    config |> Map.keys |> Enum.map(env_or_default.(config)) |> Enum.into(%{})
   end
 end

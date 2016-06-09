@@ -24,6 +24,9 @@ defmodule Cassette.Server do
   @type reload_request :: {:reload, Config.t}
   @type reload_reply :: :ok
 
+  @type config_request :: {:config}
+  @type config_reply :: Config.t
+
   @spec start_link(term, Config.t) :: GenServer.on_start
 
   @doc false
@@ -62,6 +65,16 @@ defmodule Cassette.Server do
     GenServer.call(server, {:st, current_tgt, service, time_now()})
   end
 
+  @doc """
+  Returns this server's current configuration
+  """
+
+  @spec config(pid) :: Config.t
+
+  def config(server) do
+    GenServer.call(server, {:config})
+  end
+
   @spec init({:ok, Config.t}) :: {:ok, State.t}
 
   @doc """
@@ -69,7 +82,7 @@ defmodule Cassette.Server do
   """
 
   def init({:ok, config}) do
-    {:ok, %State{config: config}}
+    {:ok, %State{config: Config.resolve(config)}}
   end
 
   @doc """
@@ -80,8 +93,11 @@ defmodule Cassette.Server do
     GenServer.call(server, {:reload, config})
   end
 
-  @spec handle_call(validate_request | st_request | tgt_request | reload_request, GenServer.from, State.t) ::
-    {:reply, validate_reply | tgt_reply | st_reply | reload_reply, State.t}
+  @spec handle_call(
+    validate_request | st_request | tgt_request | reload_request | config_request,
+    GenServer.from,
+    State.t
+  ) :: {:reply, validate_reply | tgt_reply | st_reply | reload_reply | config_reply, State.t}
 
   def handle_call({:validate, ticket, service, now}, _from, state = %State{validations: validations, config: config}) do
     case evaluate_validation(config, service, ticket, Map.get(validations, {service, ticket}), now) do
@@ -91,6 +107,10 @@ defmodule Cassette.Server do
       reply ->
         {:reply, reply, state}
     end
+  end
+
+  def handle_call({:config}, _from, state = %State{config: config}) do
+    {:reply, config, state}
   end
 
   def handle_call({:st, current_tgt, service, now}, _from, state = %State{config: config, tgt: {:tgt, _, current_tgt}, sts: sts}) do
@@ -116,7 +136,8 @@ defmodule Cassette.Server do
   end
 
   def handle_call({:reload, config = %Config{}}, _from, _state) do
-    {:reply, :ok, %State{config: config}}
+    {:ok, state} = init({:ok, config})
+    {:reply, :ok, state}
   end
 
   @spec evaluate_validation(Config.t, String.t, String.t, State.st, non_neg_integer()) ::

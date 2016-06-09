@@ -88,4 +88,19 @@ defmodule Cassette.ConfigTest do
 
     Application.put_env(:cassette, :base_authority, base_authority)
   end
+
+  test "resolve/1 when reading from a environment variable that does not exist returns the default value" do
+    config = %{ Config.default | base_authority: {:system, "CASSETTE_TEST_BASE_AUTHORITY"}}
+
+    assert %Config{base_authority: ""} = Config.resolve(config)
+  end
+
+  test "resolve/1 when reading from a environment variable that exists use the env var value" do
+    System.put_env("CASSETTE_TEST_BASE_AUTHORITY", "test_base_authority")
+    config = %{ Config.default | base_authority: {:system, "CASSETTE_TEST_BASE_AUTHORITY"}}
+
+    assert %Config{base_authority: "test_base_authority"} = Config.resolve(config)
+
+    System.delete_env("CASSETTE_TEST_BASE_AUTHORITY")
+  end
 end

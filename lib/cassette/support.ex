@@ -25,6 +25,7 @@ defmodule Cassette.Support do
       use Application
 
       @name opts[:process_name] || :CassetteServer
+      @config opts[:config] || Config.default
 
       @spec start(term, term) :: GenServer.on_start
 
@@ -36,7 +37,7 @@ defmodule Cassette.Support do
         import Supervisor.Spec
 
         children = [
-          worker(Server, [@name, config])
+          worker(Server, [@name, @config])
         ]
 
         options = [strategy: :one_for_one, name: :"#{@name}.Supervisor"]
@@ -63,7 +64,7 @@ defmodule Cassette.Support do
       Please refer to `Cassette.Config.t` for details
       """
       def config do
-        unquote(Macro.escape(opts[:config] || Config.default))
+        Server.config(@name)
       end
 
       @spec tgt :: {:ok, String.t} | {:error, term}
