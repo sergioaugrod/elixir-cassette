@@ -83,7 +83,7 @@ defmodule Cassette.Config do
 
   @spec resolve(t) :: t
 
-  def resolve(config) do
+  def resolve(config = %Cassette.Config{}) do
     default_values = %Cassette.Config{}
 
     env_or_default = fn(map) ->
@@ -97,4 +97,6 @@ defmodule Cassette.Config do
 
     config |> Map.keys |> Enum.map(env_or_default.(config)) |> Enum.into(%{})
   end
+
+  def resolve(nil), do: default
 end
