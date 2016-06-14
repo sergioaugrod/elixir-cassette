@@ -25,7 +25,7 @@ defmodule Cassette.Support do
       use Application
 
       @name opts[:process_name] || :CassetteServer
-      @config opts[:config] || Config.default
+      @config opts[:config]
 
       @spec start(term, term) :: GenServer.on_start
 
