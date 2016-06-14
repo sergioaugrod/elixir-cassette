@@ -37,7 +37,7 @@ defmodule Cassette.Authentication do
       |> String.split(", ")
 
     if login do
-      {:ok, User.new(login, type, authorities)}
+      {:ok, User.new(login, type || "", authorities)}
     else
       {:error}
     end
