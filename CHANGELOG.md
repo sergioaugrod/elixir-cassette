@@ -2,7 +2,19 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [1.2.2] - 2016-06-30
+## [1.2.5] - 2016-06-14
+### Fixed
+- Allows users with empty types
+
+## [1.2.4] - 2016-06-09
+### Fixed
+- Fixes issues with environment variables when compiling the default cassette client
+
+## [1.2.3] - 2016-06-09
+### Fixed
+ - Fixes issues with custom modules and environment variable configuration
+
+## [1.2.2] - 2016-05-30
 ### Fixed
 - Fixed a compile warning when using `Cassette.Support` macro with a custom config
 
