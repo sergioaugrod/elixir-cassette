@@ -15,9 +15,13 @@ defmodule Cassette.Client.ValidateTicket do
   """
   @spec perform(Config.t, String.t, String.t) :: response
   def perform(config = %Config{base_url: base_url}, ticket, service) do
-    case post("#{base_url}/serviceValidate", {:form, [service: service, ticket: ticket]}, [], Client.options(config)) do
+    case get("#{base_url}/serviceValidate", [], options([params: [service: service, ticket: ticket]], config)) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} -> {:ok, body}
       _ -> {:fail, :unknown}
     end
+  end
+
+  defp options(base, config) do
+    Keyword.merge(base, Client.options(config))
   end
 end

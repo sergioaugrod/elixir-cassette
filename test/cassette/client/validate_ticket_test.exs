@@ -32,9 +32,9 @@ defmodule Cassette.Client.ValidateTicketTest do
       conn = Plug.Parsers.call(c, [parsers: [Plug.Parsers.URLENCODED]])
 
       assert "/serviceValidate" == conn.request_path
-      assert "POST" == conn.method
-      assert conn.body_params["ticket"] == ticket
-      assert conn.body_params["service"] == service
+      assert "GET" == conn.method
+      assert conn.query_params["ticket"] == ticket
+      assert conn.query_params["service"] == service
 
       conn
       |> Plug.Conn.resp(200, body)
