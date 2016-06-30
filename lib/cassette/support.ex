@@ -78,6 +78,8 @@ defmodule Cassette.Support do
       @spec st(String.t) :: {:ok, String.t} | {:error, term}
       @doc """
       Generates a Service Ticket for the given `service`
+
+      This function retries once when the TGT is expired on the server side.
       """
       def st(service) do
         {:ok, current_tgt} = tgt
