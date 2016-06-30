@@ -117,6 +117,10 @@ defmodule Cassette.Server do
     case evaluate_st(config, current_tgt, service, Map.get(sts, service), now) do
       {:ok, new_st, expires_at} ->
         {:reply, {:ok, new_st}, State.put_st(state, service, {new_st, expires_at})}
+
+      reply = {:error, :tgt_expired} ->
+        {:reply, reply, State.clear_tgt(state)}
+
       reply ->
         {:reply, reply, state}
     end
@@ -174,7 +178,7 @@ defmodule Cassette.Server do
   defp evaluate_st(config, current_tgt, service, _, _) do
     reply = case Client.st(config, current_tgt, service) do
       {:ok, new_st} -> {:ok, new_st, time_now() + config.st_ttl}
-      {:error, :bad_tgt} -> {:error, "TGT expired"}
+      {:error, :bad_tgt} -> {:error, :tgt_expired}
       {:fail, status_code, body} -> {:error, "Failed with status #{status_code}: #{body}"}
       {:fail, :unknown} -> {:error, "Failed for unknown reason"}
     end

@@ -23,6 +23,13 @@ defmodule Cassette.Server.State do
   end
 
   @doc """
+  Clears the tgt
+  """
+  def clear_tgt(state) do
+    %{state | tgt: {:tgt, 0, ""}, sts: %{}}
+  end
+
+  @doc """
   Updates the tgt cache
   """
   @spec put_tgt(t, String.t, non_neg_integer()) :: t

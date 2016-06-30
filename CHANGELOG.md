@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.3.0] - 2016-06-30
+### Changed
+- `Cassette.Support.st/1` (and derivates) now retry (once) on an expired TGT
+
 ## [1.2.6] - 2016-06-16
 ### Changed
 - changes request to `/serviceValidate` to `GET` method to comply with servers. See #1

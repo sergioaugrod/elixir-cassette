@@ -81,7 +81,14 @@ defmodule Cassette.Support do
       """
       def st(service) do
         {:ok, current_tgt} = tgt
-        Server.st(@name, current_tgt, service)
+        case Server.st(@name, current_tgt, service) do
+          {:error, :tgt_expired} ->
+            {:ok, new_tgt} = tgt
+            Server.st(@name, new_tgt, service)
+
+          reply ->
+            reply
+        end
       end
 
       @spec validate(String.t, String.t) :: {:ok, User.t} | {:error, term}
