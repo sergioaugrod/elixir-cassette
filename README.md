@@ -50,7 +50,7 @@ A round trip validation would look like this:
     iex> tgt = Cassette.tgt
     "TGT-11692539-ZIvKZ6TlGUBX5DBgR6egYnVvJeHyJpM2oxApxlsIYEaX2dUd9x"
 
-    iex> st = Cassette.st(Cassette.Config.default.service)
+    iex> {:ok, st} = Cassette.st(Cassette.Config.default.service)
     "ST-16175889-oqcTdH041YZeeLcQtYCL"
 
     iex> Cassette.validate(st, Cassette.Config.default.service)
