@@ -47,14 +47,14 @@ A round trip validation would look like this:
 
     $ iex -S mix
 
-    iex> tgt = Cassette.tgt
-    "TGT-11692539-ZIvKZ6TlGUBX5DBgR6egYnVvJeHyJpM2oxApxlsIYEaX2dUd9x"
+    iex> {:ok, tgt} = Cassette.tgt
+    {:ok, "TGT-11692539-ZIvKZ6TlGUBX5DBgR6egYnVvJeHyJpM2oxApxlsIYEaX2dUd9x"}
 
     iex> {:ok, st} = Cassette.st(Cassette.Config.default.service)
-    "ST-16175889-oqcTdH041YZeeLcQtYCL"
+    {:ok, "ST-16175889-oqcTdH041YZeeLcQtYCL"}
 
     iex> Cassette.validate(st, Cassette.Config.default.service)
-    %Cassette.User{login: "sampleuser", authorities: ["ACME_ADMIN"...]
+    {:ok, %Cassette.User{login: "sampleuser", authorities: ["ACME_ADMIN"...]}}
 
 
 You are not required to call `Cassette.tgt`, it will be generated (or re-generated in case of expiration) when creating a ST.
