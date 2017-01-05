@@ -9,7 +9,7 @@ defmodule FakeCas.Support do
   @spec initialize :: :ok
   def initialize do
     FakeCas.start
-    configure_cassette
+    configure_cassette()
     Cassette.reload
   end
 

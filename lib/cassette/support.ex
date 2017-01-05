@@ -29,7 +29,7 @@ defmodule Cassette.Support do
 
       @spec start(term, term) :: GenServer.on_start
 
-      def start(_, _), do: start
+      def start(_, _), do: start()
 
       @spec start() :: GenServer.on_start
       @doc false
@@ -82,10 +82,10 @@ defmodule Cassette.Support do
       This function retries once when the TGT is expired on the server side.
       """
       def st(service) do
-        {:ok, current_tgt} = tgt
+        {:ok, current_tgt} = tgt()
         case Server.st(@name, current_tgt, service) do
           {:error, :tgt_expired} ->
-            {:ok, new_tgt} = tgt
+            {:ok, new_tgt} = tgt()
             Server.st(@name, new_tgt, service)
 
           reply ->
@@ -97,7 +97,7 @@ defmodule Cassette.Support do
       @doc """
       Validates a given `ticket` against the given `service` or the service set in the configuration
       """
-      def validate(ticket, service \\ config.service) do
+      def validate(ticket, service \\ config().service) do
         Server.validate(@name, ticket, service)
       end
 

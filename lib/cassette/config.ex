@@ -98,5 +98,5 @@ defmodule Cassette.Config do
     config |> Map.keys |> Enum.map(env_or_default.(config)) |> Enum.into(%{})
   end
 
-  def resolve(nil), do: default
+  def resolve(nil), do: default()
 end

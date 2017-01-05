@@ -5,15 +5,15 @@ defmodule Cassette.Mixfile do
 
   def project do
     [app: :cassette,
-     version: version,
+     version: version(),
      elixir: "~> 1.2",
      description: "A CAS client and validation library",
      elixirc_paths: elixirc_paths(Mix.env),
-     package: package,
+     package: package(),
      docs: [
        extras: ["README.md", "CONTRIBUTING.md", "LICENSE.md"]
      ],
-     deps: deps]
+     deps: deps()]
   end
 
   def elixirc_paths(:prod), do: ["lib"]
@@ -33,7 +33,7 @@ defmodule Cassette.Mixfile do
        maintainers: ["Ricardo Hermida Ruiz"],
        licenses: ["MIT"],
        links: %{"GitHub" => "https://github.com/locaweb/elixir-cassette",
-                "Docs" => "https://hexdocs.pm/cassette/#{version}"}]
+                "Docs" => "https://hexdocs.pm/cassette/#{version()}"}]
   end
 
   # Dependencies can be Hex packages:
@@ -50,7 +50,7 @@ defmodule Cassette.Mixfile do
      {:httpoison, "~> 0.8"},
      {:exml, "~> 0.1"},
      {:ex_doc, "~> 0.11", only: :dev},
-     {:earmark, "~> 0.1", only: :dev},
+     {:earmark, "~> 1.0", only: :dev},
      {:credo, "~> 0.3", only: [:dev, :test]},
      {:fake_cas, "~> 1.1", only: [:dev, :test]},
     ]
