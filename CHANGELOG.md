@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.3.1] - 2017-01-12
+### Changed
+- Removes compilation warnings on elixir 1.4.0
+
 ## [1.3.0] - 2016-06-30
 ### Changed
 - `Cassette.Support.st/1` (and derivates) now retry (once) on an expired TGT
