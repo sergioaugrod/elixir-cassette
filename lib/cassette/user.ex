@@ -18,6 +18,10 @@ defmodule Cassette.User do
     new(login, "", authorities)
   end
 
+  @doc """
+  Initializes a `Cassette.User` struct, with a `type` attribute and mapping the list of authorities to it's internal representation
+  """
+  @spec new(String.t, String.t, [String.t]) :: User.t
   def new(login, type, authorities) do
     %User{login: login, type: String.downcase(type), authorities: MapSet.new(authorities)}
   end

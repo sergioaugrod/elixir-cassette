@@ -28,7 +28,7 @@ defmodule Cassette.ServerTest do
       |> State.put_tgt(tgt, now + 60)
       |> State.put_st(service, {st, now + 60})
 
-    assert {:reply, {:ok, ^st}, ^new_state} = Server.handle_call({:st, tgt, service, now}, {self, :bla}, new_state)
+    assert {:reply, {:ok, ^st}, ^new_state} = Server.handle_call({:st, tgt, service, now}, {self(), :bla}, new_state)
   end
 
   test "handling a tgt message when tgt is not expired returns the cached value", %{state: state} do
@@ -36,7 +36,7 @@ defmodule Cassette.ServerTest do
 
     new_state = State.put_tgt(state, "SOME-TGT", now + 60)
 
-    assert {:reply, {:ok, "SOME-TGT"}, ^new_state} = Server.handle_call({:tgt, now}, {self, :bla}, new_state)
+    assert {:reply, {:ok, "SOME-TGT"}, ^new_state} = Server.handle_call({:tgt, now}, {self(), :bla}, new_state)
   end
 
   defp time_now do

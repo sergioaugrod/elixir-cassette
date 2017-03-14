@@ -88,7 +88,7 @@ defmodule Cassette.Server do
   @doc """
   Changes the internal state configuration to `config`
   """
-
+  @spec reload(GenServer.server, Config.t) :: term
   def reload(server, config) do
     GenServer.call(server, {:reload, config})
   end

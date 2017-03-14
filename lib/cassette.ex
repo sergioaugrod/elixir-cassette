@@ -73,7 +73,6 @@ defmodule Cassette do
 
   Trying to validate the ST in `FakeCas.valid_st/0` will always succeed for any service:
 
-
   ```elixir
 
   iex> st = FakeCas.valid_st

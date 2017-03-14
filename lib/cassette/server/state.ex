@@ -25,6 +25,7 @@ defmodule Cassette.Server.State do
   @doc """
   Clears the tgt
   """
+  @spec clear_tgt(t) :: t
   def clear_tgt(state) do
     %{state | tgt: {:tgt, 0, ""}, sts: %{}}
   end

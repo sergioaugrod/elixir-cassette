@@ -86,12 +86,14 @@ defmodule Cassette.Config do
   def resolve(config = %Cassette.Config{}) do
     default_values = %Cassette.Config{}
 
+    resolve_env_var = fn
+      (key, {:system, var}) -> {key, System.get_env(var) || Map.get(default_values, key)}
+      (key, value) -> {key, value}
+    end
+
     env_or_default = fn(map) ->
       fn(key) ->
-        case Map.get(map, key) do
-          {:system, var} -> {key, System.get_env(var) || Map.get(default_values, key)}
-          value -> {key, value}
-        end
+        resolve_env_var.(key, Map.get(map, key))
       end
     end
 
