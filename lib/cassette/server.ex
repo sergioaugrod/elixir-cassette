@@ -12,55 +12,64 @@ defmodule Cassette.Server do
   alias Cassette.Server.State
   alias Cassette.User
 
-  @type tgt_request :: {:tgt, non_neg_integer()}
-  @type tgt_reply :: {:ok, String.t} | {:error, term}
+  @typep tgt_request :: {:tgt, non_neg_integer()}
 
-  @type st_request :: {:st, String.t, String.t, non_neg_integer()}
-  @type st_reply :: {:ok, String.t} | {:error, term}
+  @typep st_request :: {:st, String.t, String.t, non_neg_integer()}
 
-  @type validate_request :: {:validate, String.t, String.t, non_neg_integer()}
-  @type validate_reply :: {:ok, User.t} | {:error, term}
+  @typep validate_request :: {:validate, String.t, String.t, non_neg_integer()}
 
-  @type reload_request :: {:reload, Config.t}
-  @type reload_reply :: :ok
+  @typep reload_request :: {:reload, Config.t}
 
-  @type config_request :: {:config}
-  @type config_reply :: Config.t
+  @typep config_request :: {:config}
 
-  @spec start_link(term, Config.t) :: GenServer.on_start
+  @typep cassette_request :: tgt_request
+                           | st_request
+                           | validate_request
+                           | config_request
+                           | reload_request
+
+  @typep tgt_reply :: {:ok, String.t} | {:error, term}
+
+  @typep st_reply :: {:ok, String.t} | {:error, term}
+
+  @typep validate_reply :: {:ok, User.t} | {:error, term}
+
+  @typep reload_reply :: :ok
+
+  @typep config_reply :: Config.t
+
+  @typep cassette_reply :: tgt_reply
+                         | st_reply
+                         | validate_reply
+                         | config_reply
+                         | reload_reply
 
   @doc false
-
+  @spec start_link(term, Config.t) :: GenServer.on_start
   def start_link(name, config) do
     GenServer.start_link(__MODULE__, {:ok, config}, name: name)
   end
 
-  @spec validate(pid, String.t, String.t) :: {:ok, User.t} | {:error, term}
-
   @doc """
   Validates a `ticket` for the given `service`
   """
-
+  @spec validate(GenServer.server, String.t, String.t) :: {:ok, User.t} | {:error, term}
   def validate(server, ticket, service) do
     GenServer.call(server, {:validate, ticket, service, time_now()})
   end
 
-  @spec tgt(pid) :: {:ok, String.t} | {:error, term}
-
   @doc """
   Generates a Ticket Granting Ticket based on the configuration of the `server`
   """
-
+  @spec tgt(GenServer.server) :: {:ok, String.t} | {:error, term}
   def tgt(server) do
     GenServer.call(server, {:tgt, time_now()})
   end
 
-  @spec st(pid, String.t, String.t) :: {:ok, String.t} | {:error, term}
-
   @doc """
   Generates Service Ticket based on the configuration of the `server` and the given `tgt`
   """
-
+  @spec st(GenServer.server, String.t, String.t) :: {:ok, String.t} | {:error, term}
   def st(server, current_tgt, service) do
     GenServer.call(server, {:st, current_tgt, service, time_now()})
   end
@@ -68,19 +77,15 @@ defmodule Cassette.Server do
   @doc """
   Returns this server's current configuration
   """
-
   @spec config(GenServer.server) :: Config.t
-
   def config(server) do
     GenServer.call(server, {:config})
   end
 
-  @spec init({:ok, Config.t}) :: {:ok, State.t}
-
   @doc """
   Initializes the server with the given configuration
   """
-
+  @spec init({:ok, Config.t}) :: {:ok, State.t}
   def init({:ok, config}) do
     {:ok, %State{config: Config.resolve(config)}}
   end
@@ -93,12 +98,7 @@ defmodule Cassette.Server do
     GenServer.call(server, {:reload, config})
   end
 
-  @spec handle_call(
-    validate_request | st_request | tgt_request | reload_request | config_request,
-    GenServer.from,
-    State.t
-  ) :: {:reply, validate_reply | tgt_reply | st_reply | reload_reply | config_reply, State.t}
-
+  @spec handle_call(cassette_request, GenServer.from, State.t) :: {:reply, cassette_reply, State.t}
   def handle_call({:validate, ticket, service, now}, _from, state = %State{validations: validations, config: config}) do
     case evaluate_validation(config, service, ticket, Map.get(validations, {service, ticket}), now) do
       {:ok, user, expires_at} ->
@@ -146,14 +146,12 @@ defmodule Cassette.Server do
 
   @spec evaluate_validation(Config.t, String.t, String.t, State.st, non_neg_integer()) ::
     {:ok, User.t, non_neg_integer()}
-
   defp evaluate_validation(_, _, _, {user, expires_at}, now) when now < expires_at do
     {:ok, user, expires_at}
   end
 
   @spec evaluate_validation(Config.t, String.t, String.t, State.st, non_neg_integer()) ::
     {:ok, User.t, non_neg_integer()} | {:error, term}
-
   defp evaluate_validation(config, service, ticket, _, _) do
     reply = case ValidateTicket.perform(config, ticket, service) do
       {:ok, body} -> Authentication.handle_response(body)
@@ -167,14 +165,12 @@ defmodule Cassette.Server do
   end
 
   @spec evaluate_st(Config.t, String.t, String.t, State.st, non_neg_integer()) :: {:ok, String.t, non_neg_integer()}
-
   defp evaluate_st(_, _, _, {current_st, expires_at}, now) when now < expires_at do
     {:ok, current_st, expires_at}
   end
 
   @spec evaluate_st(Config.t, String.t, String.t, State.st, non_neg_integer()) ::
     {:ok, String.t, non_neg_integer()} | {:error, term}
-
   defp evaluate_st(config, current_tgt, service, _, _) do
     reply = case Client.st(config, current_tgt, service) do
       {:ok, new_st} -> {:ok, new_st, time_now() + config.st_ttl}
@@ -187,7 +183,6 @@ defmodule Cassette.Server do
   end
 
   @spec time_now :: non_neg_integer()
-
   defp time_now do
     :calendar.datetime_to_gregorian_seconds(:calendar.local_time)
   end

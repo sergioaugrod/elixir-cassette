@@ -8,7 +8,10 @@ defmodule Cassette.Client.GenerateTgt do
   alias Cassette.Config
   alias Cassette.Client
 
-  @type response :: {:error, :bad_credentials} | {:ok, String.t} | {:fail, pos_integer()} | {:fail, :unknown}
+  @type response :: {:error, :bad_credentials}
+                  | {:ok, String.t}
+                  | {:fail, pos_integer()}
+                  | {:fail, :unknown}
 
   @spec process_headers([{String.t, String.t}]) :: %{String.t => String.t}
   defp process_headers(headers), do: Enum.into(headers, %{}, fn{k, v} -> {String.downcase(k), v} end)

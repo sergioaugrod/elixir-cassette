@@ -3,17 +3,17 @@ defmodule Cassette.User do
   This is the struct that represents the user returned by a Validation request
   """
 
+  alias Cassette.User
+  alias Cassette.Config
+
   defstruct login: "", type: "", authorities: MapSet.new([])
 
   @type t :: %__MODULE__{login: String.t}
 
-  alias Cassette.User
-  alias Cassette.Config
-
-  @spec new(String.t, [String.t]) :: User.t
   @doc """
   Initializes a `Cassette.User` struct, mapping the list of authorities to it's internal representation
   """
+  @spec new(String.t, [String.t]) :: User.t
   def new(login, authorities) do
     new(login, "", authorities)
   end
@@ -39,12 +39,11 @@ defmodule Cassette.User do
   This function returns false when user is not a Cassette.User.t
 
   """
-  @spec has_role?(User.t, String.t) :: boolean
+  @spec has_role?(User.t | any, String.t | any) :: boolean
   def has_role?(user = %User{}, role) do
     User.has_role?(user, Config.default, role)
   end
 
-  @spec has_role?(any, any) :: boolean
   def has_role?(_, _), do: false
 
   @doc """
@@ -55,12 +54,11 @@ defmodule Cassette.User do
   This function returns false when user is not a Cassette.User.t
 
   """
-  @spec has_role?(User.t, Config.t, String.t) :: boolean
+  @spec has_role?(User.t | any, Config.t | any, String.t | any) :: boolean
   def has_role?(user = %User{}, %Config{base_authority: base}, role) do
     User.has_raw_role?(user, to_raw_role(base, role))
   end
 
-  @spec has_role?(any, any, any) :: boolean
   def has_role?(_, _, _), do: false
 
   @doc """
@@ -77,12 +75,11 @@ defmodule Cassette.User do
   This function returns false when user is not a Cassette.User.t
 
   """
-  @spec has_raw_role?(User.t, String.t) :: boolean
+  @spec has_raw_role?(User.t | any, String.t | any) :: boolean
   def has_raw_role?(%User{authorities: authorities}, raw_role) do
     MapSet.member?(authorities, String.upcase("#{raw_role}"))
   end
 
-  @spec has_raw_role?(any, any) :: boolean
   def has_raw_role?(_, _), do: false
 
   @spec to_raw_role(String.t | nil, String.t) :: String.t

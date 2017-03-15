@@ -8,7 +8,10 @@ defmodule Cassette.Client.GenerateSt do
   alias Cassette.Config
   alias Cassette.Client
 
-  @type response :: {:error, :bad_tgt} | {:ok, String.t} | {:fail, pos_integer(), String.t} | {:fail, :unknown}
+  @type response :: {:error, :bad_tgt}
+                  | {:ok, String.t}
+                  | {:fail, pos_integer(), String.t}
+                  | {:fail, :unknown}
 
   @doc """
   Do request to cas service to get a service ticket from ticket granting

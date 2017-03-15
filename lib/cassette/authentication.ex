@@ -5,7 +5,6 @@ defmodule Cassette.Authentication do
 
   alias Cassette.User
 
-  @spec handle_response(String.t) :: {:ok, User.t} | {:error, String.t}
   @doc """
   Extracts the authenticated user from validation response
 
@@ -14,6 +13,7 @@ defmodule Cassette.Authentication do
   * `{:ok, Cassette.User.t}` on success
   * `{:error, String.t}` on error where the string is the failure reason returned by the cas server
   """
+  @spec handle_response(String.t) :: {:ok, User.t} | {:error, String.t}
   def handle_response(body) do
     xml = Exml.parse(body)
     failure = {Exml.get(xml, "//cas:authenticationFailure"), Exml.get(xml, "//cas:authenticationFailure/@code")}

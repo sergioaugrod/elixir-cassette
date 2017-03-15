@@ -48,12 +48,12 @@ defmodule Cassette.Config do
     base_authority: String.t, service: String.t, tgt_ttl: non_neg_integer(),
     st_ttl: non_neg_integer(), validation_ttl: non_neg_integer()}
 
-  @spec default() :: t
   @doc """
   Returns a configuration based on what is set in application environment and default values
 
   Check `Cassette.Config.t` for key details
   """
+  @spec default() :: t
   def default do
     default_values = %Cassette.Config{}
     env_or_default = fn(key) ->
@@ -80,9 +80,7 @@ defmodule Cassette.Config do
   The value will be fetched from the `SOME_ENVIRONMENT_VARIABLE` variable.
   If that variable is `nil`, the default value in `Cassette.Config.t` will be used
   """
-
   @spec resolve(t) :: t
-
   def resolve(config = %Cassette.Config{}) do
     default_values = %Cassette.Config{}
 

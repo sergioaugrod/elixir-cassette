@@ -27,12 +27,12 @@ defmodule Cassette.Support do
       @name opts[:process_name] || :CassetteServer
       @config opts[:config]
 
+      @doc false
       @spec start(term, term) :: GenServer.on_start
-
       def start(_, _), do: start()
 
-      @spec start() :: GenServer.on_start
       @doc false
+      @spec start() :: GenServer.on_start
       def start do
         import Supervisor.Spec
 
@@ -49,13 +49,12 @@ defmodule Cassette.Support do
         end
       end
 
+      @doc false
       @spec child_spec() :: Supervisor.Spec.spec
-
       def child_spec do
         {__MODULE__, {__MODULE__, :start, []}, :permanent, 5000, :worker, [__MODULE__]}
       end
 
-      @spec config :: Config.t
       @doc """
       Returns the configuration used by this Cassette server
 
@@ -63,24 +62,25 @@ defmodule Cassette.Support do
 
       Please refer to `Cassette.Config.t` for details
       """
+      @spec config :: Config.t
       def config do
         Server.config(@name)
       end
 
-      @spec tgt :: {:ok, String.t} | {:error, term}
       @doc """
       Generates a Ticket Granting Ticket
       """
+      @spec tgt :: {:ok, String.t} | {:error, term}
       def tgt do
         Server.tgt(@name)
       end
 
-      @spec st(String.t) :: {:ok, String.t} | {:error, term}
       @doc """
       Generates a Service Ticket for the given `service`
 
       This function retries once when the TGT is expired on the server side.
       """
+      @spec st(String.t) :: {:ok, String.t} | {:error, term}
       def st(service) do
         {:ok, current_tgt} = tgt()
         case Server.st(@name, current_tgt, service) do
@@ -93,10 +93,10 @@ defmodule Cassette.Support do
         end
       end
 
-      @spec validate(String.t, String.t) :: {:ok, User.t} | {:error, term}
       @doc """
       Validates a given `ticket` against the given `service` or the service set in the configuration
       """
+      @spec validate(String.t, String.t) :: {:ok, User.t} | {:error, term}
       def validate(ticket, service \\ config().service) do
         Server.validate(@name, ticket, service)
       end
