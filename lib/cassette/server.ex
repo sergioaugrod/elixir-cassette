@@ -69,7 +69,7 @@ defmodule Cassette.Server do
   Returns this server's current configuration
   """
 
-  @spec config(pid) :: Config.t
+  @spec config(GenServer.server) :: Config.t
 
   def config(server) do
     GenServer.call(server, {:config})
