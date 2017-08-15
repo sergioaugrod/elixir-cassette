@@ -13,7 +13,7 @@ defmodule Cassette.Client.GenerateStTest do
 
   test "perform returns :bad_tgt for a 404 response", %{bypass: bypass, config: config, tgt: tgt, service: service} do
     Bypass.expect bypass, fn conn ->
-      Plug.Conn.resp(conn, 404, "not found")
+      conn |> Plug.Conn.resp(404, "not found")
     end
 
     assert {:error, :bad_tgt} = Cassette.Client.GenerateSt.perform(config, tgt, service)
@@ -21,7 +21,7 @@ defmodule Cassette.Client.GenerateStTest do
 
   test "perform returns {:fail, status_code, body} for other error statuses", %{bypass: bypass, config: config, tgt: tgt, service: service} do
     Bypass.expect bypass, fn conn ->
-      Plug.Conn.resp(conn, 418, "I. am. a. freaking. teapot.")
+      conn |> Plug.Conn.resp(418, "I. am. a. freaking. teapot.")
     end
 
     assert {:fail, 418, "I. am. a. freaking. teapot."} = Cassette.Client.GenerateSt.perform(config, tgt, service)
@@ -43,7 +43,8 @@ defmodule Cassette.Client.GenerateStTest do
       assert "POST" == conn.method
       assert conn.body_params["service"] == service
 
-      Plug.Conn.resp(conn, 200, st)
+      conn
+      |> Plug.Conn.resp(200, st)
     end
 
     assert {:ok, ^st} = Cassette.Client.GenerateSt.perform(config, tgt, service)
