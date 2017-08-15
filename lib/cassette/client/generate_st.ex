@@ -3,8 +3,7 @@ defmodule Cassette.Client.GenerateSt do
   Generates CAS Service Ticket
   """
 
-  use HTTPotion.Base
-  use Cassette.Client.UrlEncodedHeaders
+  use HTTPoison.Base
 
   alias Cassette.Config
   alias Cassette.Client
@@ -20,12 +19,10 @@ defmodule Cassette.Client.GenerateSt do
   """
   @spec perform(Config.t, String.t, String.t) :: response
   def perform(config = %Config{base_url: base_url}, tgt, service) do
-    opts = Keyword.merge(Client.options(config), body: "service=" <> URI.encode_www_form(service))
-
-    case post("#{base_url}/v1/tickets/#{tgt}", opts) do
-      %HTTPotion.Response{status_code: 404} -> {:error, :bad_tgt}
-      %HTTPotion.Response{status_code: 200, body: body} -> {:ok, body}
-      %HTTPotion.Response{status_code: status_code, body: body} -> {:fail, status_code, body}
+    case post("#{base_url}/v1/tickets/#{tgt}", {:form, [service: service]}, [], Client.options(config)) do
+      {:ok, %HTTPoison.Response{status_code: 404}} -> {:error, :bad_tgt}
+      {:ok, %HTTPoison.Response{status_code: 200, body: body}} -> {:ok, body}
+      {:ok, %HTTPoison.Response{status_code: status_code, body: body}} -> {:fail, status_code, body}
       _ -> {:fail, :unknown}
     end
   end
