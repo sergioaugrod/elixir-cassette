@@ -13,7 +13,7 @@ defmodule Cassette.Client.ValidateTicketTest do
 
   test "perform returns {:fail, :unknown} for not-200 response", %{bypass: bypass, config: config, ticket: ticket, service: service} do
     Bypass.expect bypass, fn conn ->
-      conn |> Plug.Conn.resp(404, "not found")
+      Plug.Conn.resp(conn, 404, "not found")
     end
 
     assert {:fail, :unknown} = Cassette.Client.ValidateTicket.perform(config, ticket, service)
@@ -36,8 +36,7 @@ defmodule Cassette.Client.ValidateTicketTest do
       assert conn.query_params["ticket"] == ticket
       assert conn.query_params["service"] == service
 
-      conn
-      |> Plug.Conn.resp(200, body)
+      Plug.Conn.resp(conn, 200, body)
     end
 
     assert {:ok, ^body} = Cassette.Client.ValidateTicket.perform(config, ticket, service)
