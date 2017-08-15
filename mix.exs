@@ -1,7 +1,7 @@
 defmodule Cassette.Mixfile do
   use Mix.Project
 
-  def version, do: "1.3.2"
+  def version, do: "1.4.0"
 
   def project do
     [app: :cassette,
@@ -23,7 +23,7 @@ defmodule Cassette.Mixfile do
   #
   # Type "mix help compile.app" for more information
   def application do
-    [applications: [:logger, :httpoison, :exml],
+    [applications: [:logger, :httpotion, :exml],
      mod: {Cassette, []}]
   end
 
@@ -47,7 +47,7 @@ defmodule Cassette.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [
-     {:httpoison, "~> 0.8"},
+     {:httpotion, "~> 3.0.0"},
      {:exml, "~> 0.1"},
      {:ex_doc, "~> 0.11", only: :dev},
      {:earmark, "~> 1.0", only: :dev},
