@@ -2,7 +2,7 @@
 
 Library to generate and validate [CAS](http://jasig.github.io/cas/) TGTs/STs
 
-![Build status](https://travis-ci.org/locaweb/elixir-cassette.svg)
+[![Build Status](https://travis-ci.org/locaweb/elixir-cassette.svg?branch=master)](https://travis-ci.org/locaweb/elixir-cassette)
 
 ## Installation
 
