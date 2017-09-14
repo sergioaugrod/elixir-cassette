@@ -13,6 +13,10 @@ defmodule Cassette.Mixfile do
      docs: [
        extras: ["README.md", "CONTRIBUTING.md", "LICENSE.md"]
      ],
+     test_coverage: [tool: ExCoveralls],
+     preferred_cli_env: ["coveralls": :test,
+                         "coveralls.detail": :test,
+                         "coveralls.html": :test],
      deps: deps()]
   end
 
@@ -28,12 +32,12 @@ defmodule Cassette.Mixfile do
   end
 
   def package do
-   [
-       files: ["lib", "support", "mix.exs", "README.md", "LICENSE.md", "CONTRIBUTING.md"],
-       maintainers: ["Ricardo Hermida Ruiz"],
-       licenses: ["MIT"],
-       links: %{"GitHub" => "https://github.com/locaweb/elixir-cassette",
-                "Docs" => "https://hexdocs.pm/cassette/#{version()}"}]
+    [
+      files: ["lib", "support", "mix.exs", "README.md", "LICENSE.md", "CONTRIBUTING.md"],
+      maintainers: ["Ricardo Hermida Ruiz"],
+      licenses: ["MIT"],
+      links: %{"GitHub" => "https://github.com/locaweb/elixir-cassette",
+               "Docs" => "https://hexdocs.pm/cassette/#{version()}"}]
   end
 
   # Dependencies can be Hex packages:
@@ -47,12 +51,13 @@ defmodule Cassette.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [
-     {:httpoison, "~> 0.8"},
-     {:exml, "~> 0.1"},
-     {:ex_doc, "~> 0.11", only: :dev},
-     {:earmark, "~> 1.0", only: :dev},
-     {:credo, "~> 0.3", only: [:dev, :test]},
-     {:fake_cas, "~> 1.1", only: [:dev, :test]},
+      {:httpoison, "~> 0.8"},
+      {:exml, "~> 0.1"},
+      {:ex_doc, "~> 0.11", only: :dev},
+      {:earmark, "~> 1.0", only: :dev},
+      {:credo, "~> 0.3", only: [:dev, :test]},
+      {:fake_cas, "~> 1.1", only: [:dev, :test]},
+      {:excoveralls, "~> 0.7", only: :test},
     ]
   end
 end

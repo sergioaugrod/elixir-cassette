@@ -2,6 +2,8 @@
 
 Library to generate and validate [CAS](http://jasig.github.io/cas/) TGTs/STs
 
+![Build status](https://travis-ci.org/locaweb/elixir-cassette.svg)
+
 ## Installation
 
 The package can be installed as:
