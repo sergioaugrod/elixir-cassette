@@ -28,14 +28,15 @@ defmodule Cassette do
 
   ## Customization and multiple configurations
 
-  If you need multiple Cassette servers please refer to `Cassette.Support` for macros
-  that allow to build your own services.
+  If you need multiple Cassette servers please refer to `Cassette.Support` for
+  macros that allow to build your own services.
 
   ## Running on development without an actual CAS server
 
   The `FakeCas` module we use for testing is available on `:dev` as well.
 
-  To set it up and configure the default `Cassette`, add to yor dependencies on `mix.exs`:
+  To set it up and configure the default `Cassette`, add to yor dependencies on
+  `mix.exs`:
 
   ```elixir
 
@@ -52,7 +53,8 @@ defmodule Cassette do
 
   ```
 
-  With the configuration set, `Cassette` will always return the TGT in `FakeCas.valid_tgt/0`:
+  With the configuration set, `Cassette` will always return the TGT returned by
+  `FakeCas.valid_tgt/0`:
 
   ```
   iex> tgt = FakeCas.valid_tgt
@@ -71,7 +73,8 @@ defmodule Cassette do
 
   ```
 
-  Trying to validate the ST in `FakeCas.valid_st/0` will always succeed for any service:
+  Trying to validate the ST in `FakeCas.valid_st/0` will always succeed for any
+  service:
 
   ```elixir
 

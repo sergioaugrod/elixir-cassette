@@ -53,7 +53,8 @@ defmodule Cassette.Server do
   @doc """
   Validates a `ticket` for the given `service`
   """
-  @spec validate(GenServer.server, String.t, String.t) :: {:ok, User.t} | {:error, term}
+  @spec validate(GenServer.server, String.t, String.t) :: {:ok, User.t}
+                                                        | {:error, term}
   def validate(server, ticket, service) do
     GenServer.call(server, {:validate, ticket, service, time_now()})
   end
@@ -67,9 +68,11 @@ defmodule Cassette.Server do
   end
 
   @doc """
-  Generates Service Ticket based on the configuration of the `server` and the given `tgt`
+  Generates Service Ticket based on the configuration of the `server` and the
+  given `tgt`
   """
-  @spec st(GenServer.server, String.t, String.t) :: {:ok, String.t} | {:error, term}
+  @spec st(GenServer.server, String.t, String.t) :: {:ok, String.t}
+                                                  | {:error, term}
   def st(server, current_tgt, service) do
     GenServer.call(server, {:st, current_tgt, service, time_now()})
   end
@@ -98,11 +101,17 @@ defmodule Cassette.Server do
     GenServer.call(server, {:reload, config})
   end
 
-  @spec handle_call(cassette_request, GenServer.from, State.t) :: {:reply, cassette_reply, State.t}
-  def handle_call({:validate, ticket, service, now}, _from, state = %State{validations: validations, config: config}) do
-    case evaluate_validation(config, service, ticket, Map.get(validations, {service, ticket}), now) do
+  @spec handle_call(cassette_request, GenServer.from, State.t) ::
+    {:reply, cassette_reply, State.t}
+  def handle_call({:validate, ticket, service, now}, _from,
+    state = %State{validations: validations, config: config}) do
+    cached_value = Map.get(validations, {service, ticket})
+
+    case evaluate_validation(config, service, ticket, cached_value, now) do
       {:ok, user, expires_at} ->
-        {:reply, {:ok, user}, State.put_validation(state, {service, ticket}, {user, expires_at})}
+        new_state = State.put_validation(state,
+          {service, ticket}, {user, expires_at})
+        {:reply, {:ok, user}, new_state}
 
       reply ->
         {:reply, reply, state}
@@ -113,10 +122,15 @@ defmodule Cassette.Server do
     {:reply, config, state}
   end
 
-  def handle_call({:st, current_tgt, service, now}, _from, state = %State{config: config, tgt: {:tgt, _, current_tgt}, sts: sts}) do
-    case evaluate_st(config, current_tgt, service, Map.get(sts, service), now) do
+  def handle_call({:st, current_tgt, service, now}, _from,
+    state = %State{config: config, tgt: {:tgt, _, current_tgt}, sts: sts}) do
+
+    cached_value = Map.get(sts, service)
+
+    case evaluate_st(config, current_tgt, service, cached_value, now) do
       {:ok, new_st, expires_at} ->
-        {:reply, {:ok, new_st}, State.put_st(state, service, {new_st, expires_at})}
+        new_state = State.put_st(state, service, {new_st, expires_at})
+        {:reply, {:ok, new_st}, new_state}
 
       reply = {:error, :tgt_expired} ->
         {:reply, reply, State.clear_tgt(state)}
@@ -126,17 +140,27 @@ defmodule Cassette.Server do
     end
   end
 
-  def handle_call({:tgt, now}, _from, state = %State{config: config, tgt: current_tgt}) when now > elem(current_tgt, 1) do
+  def handle_call({:tgt, now}, _from,
+    state = %State{config: config, tgt: current_tgt})
+  when now > elem(current_tgt, 1) do
     case Client.tgt(config) do
-      {:ok, new_tgt} -> {:reply, {:ok, new_tgt}, State.put_tgt(state, new_tgt, time_now() + config.tgt_ttl)}
-      {:error, :bad_credentials} -> {:reply, {:error, "Bad credentials"}, state}
-      {:fail, :unknown} -> {:reply, {:error, "Failed for unknown reason"}, state}
-      {:fail, status_code} -> {:reply, {:error, "Failed with status #{status_code}"}, state}
+      {:ok, new_tgt} ->
+        new_state = State.put_tgt(state, new_tgt, time_now() + config.tgt_ttl)
+        {:reply, {:ok, new_tgt}, new_state}
+
+      {:error, :bad_credentials} ->
+        {:reply, {:error, "Bad credentials"}, state}
+
+      {:fail, :unknown} ->
+        {:reply, {:error, "Failed for unknown reason"}, state}
+
+      {:fail, status_code} ->
+        {:reply, {:error, "Failed with status #{status_code}"}, state}
     end
   end
 
-  def handle_call({:tgt, _}, _from, state = %State{tgt: {:tgt, _, current_tgt}}) do
-    {:reply, {:ok, current_tgt}, state}
+  def handle_call({:tgt, _}, _from, state = %State{tgt: {:tgt, _, tgt}}) do
+    {:reply, {:ok, tgt}, state}
   end
 
   def handle_call({:reload, config = %Config{}}, _from, _state) do
@@ -144,14 +168,15 @@ defmodule Cassette.Server do
     {:reply, :ok, state}
   end
 
-  @spec evaluate_validation(Config.t, String.t, String.t, State.st, non_neg_integer()) ::
-    {:ok, User.t, non_neg_integer()}
-  defp evaluate_validation(_, _, _, {user, expires_at}, now) when now < expires_at do
+  @spec evaluate_validation(Config.t, String.t, String.t, State.st,
+    non_neg_integer()) :: {:ok, User.t, non_neg_integer()}
+  defp evaluate_validation(_, _, _, {user, expires_at}, now)
+  when now < expires_at do
     {:ok, user, expires_at}
   end
 
-  @spec evaluate_validation(Config.t, String.t, String.t, State.st, non_neg_integer()) ::
-    {:ok, User.t, non_neg_integer()} | {:error, term}
+  @spec evaluate_validation(Config.t, String.t, String.t, State.st,
+    non_neg_integer()) :: {:ok, User.t, non_neg_integer()} | {:error, term}
   defp evaluate_validation(config, service, ticket, _, _) do
     reply = case ValidateTicket.perform(config, ticket, service) do
       {:ok, body} -> Authentication.handle_response(body)
@@ -164,22 +189,29 @@ defmodule Cassette.Server do
     end
   end
 
-  @spec evaluate_st(Config.t, String.t, String.t, State.st, non_neg_integer()) :: {:ok, String.t, non_neg_integer()}
-  defp evaluate_st(_, _, _, {current_st, expires_at}, now) when now < expires_at do
+  @spec evaluate_st(Config.t, String.t, String.t, State.st, non_neg_integer())
+    :: {:ok, String.t, non_neg_integer()}
+  defp evaluate_st(_, _, _, {current_st, expires_at}, now)
+  when now < expires_at do
     {:ok, current_st, expires_at}
   end
 
-  @spec evaluate_st(Config.t, String.t, String.t, State.st, non_neg_integer()) ::
-    {:ok, String.t, non_neg_integer()} | {:error, term}
+  @spec evaluate_st(Config.t, String.t, String.t, State.st, non_neg_integer())
+    :: {:ok, String.t, non_neg_integer()} | {:error, term}
   defp evaluate_st(config, current_tgt, service, _, _) do
-    reply = case Client.st(config, current_tgt, service) do
-      {:ok, new_st} -> {:ok, new_st, time_now() + config.st_ttl}
-      {:error, :bad_tgt} -> {:error, :tgt_expired}
-      {:fail, status_code, body} -> {:error, "Failed with status #{status_code}: #{body}"}
-      {:fail, :unknown} -> {:error, "Failed for unknown reason"}
-    end
+    case Client.st(config, current_tgt, service) do
+      {:ok, new_st} ->
+        {:ok, new_st, time_now() + config.st_ttl}
 
-    reply
+      {:error, :bad_tgt} ->
+          {:error, :tgt_expired}
+
+      {:fail, status_code, body} ->
+         {:error, "Failed with status #{status_code}: #{body}"}
+
+      {:fail, :unknown} ->
+        {:error, "Failed for unknown reason"}
+    end
   end
 
   @spec time_now :: non_neg_integer()

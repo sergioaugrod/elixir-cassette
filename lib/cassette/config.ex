@@ -13,21 +13,25 @@ defmodule Cassette.Config do
   * `username` - the username to authenticate on cas server
   * `password` - the password to authenticate on cas server
   * `base_url` - the base url for your CAS server (do not include the `login/`)
-  * `base_authority` - simplifies role checking, please refer to `Cassette.User.has_role?/2`
+  * `base_authority` - simplifies role checking, please refer to
+    `Cassette.User.role?/2`
   * `service` - the CAS service to use when validating service tickets
   * `tgt_ttl` - the TGT cache time to live
   * `st_ttl` - the ST cache time to live
   * `validation_ttl` - the ST validation cache time to live
-  * `insecure` - boolean to allow connection even with ssl certificate check fails
+  * `insecure` - boolean to allow connection even with ssl check failures
 
-  Any of those keys may be set in your Application environment (or the mix `config/config.exs`) as:
+  Any of those keys may be set in your Application environment
+  (or the mix `config/config.exs`) as:
 
   ```elixir
   config :cassette, username: "john.doe"
   ```
 
-  `Cassette.Server`s call the `resolve/1` function on this module to resolve any configuration using environment variables.
-  To use an environment variable set the value to `{:system, "SOME_ENVIRONMENT_VARIABLE"}`.
+  `Cassette.Server`s call the `resolve/1` function on this module to resolve any
+  configuration using environment variables.
+  To use an environment variable set the value to
+  `{:system, "SOME_ENVIRONMENT_VARIABLE"}`.
 
   Or in `config.exs`:
 
@@ -35,21 +39,25 @@ defmodule Cassette.Config do
   config :cassette, username: {:system, "CASSETTE_USERNAME"}
   ``
 
-  and configure your environment (provabably in something like `/etc/default/your_app`):
+  and configure your environment (provabably in something like
+  `/etc/default/your_app`):
 
   ```shell
-  export CASSETTE_USERNAME=acme
+  CASSETTE_USERNAME=acme
   ```
 
   Please check the `Cassette.Config.default/0` function.
 
   """
-  @type t :: %__MODULE__{username: String.t, password: String.t, base_url: String.t,
-    base_authority: String.t, service: String.t, tgt_ttl: non_neg_integer(),
-    st_ttl: non_neg_integer(), validation_ttl: non_neg_integer()}
+  @type t :: %__MODULE__{username: String.t, password: String.t,
+                         base_url: String.t, base_authority: String.t,
+                         service: String.t, tgt_ttl: non_neg_integer(),
+                         st_ttl: non_neg_integer(),
+                         validation_ttl: non_neg_integer()}
 
   @doc """
-  Returns a configuration based on what is set in application environment and default values
+  Returns a configuration based on what is set in application environment and
+  default values
 
   Check `Cassette.Config.t` for key details
   """
@@ -58,9 +66,14 @@ defmodule Cassette.Config do
     default_values = %Cassette.Config{}
     env_or_default = fn(key) ->
       case Application.fetch_env(:cassette, key) do
-        {:ok, {:system, var}} -> System.get_env(var) || Map.get(default_values, key)
-        {:ok, value} -> value
-        :error -> Map.get(default_values, key)
+        {:ok, {:system, var}} ->
+          System.get_env(var) || Map.get(default_values, key)
+
+        {:ok, value} ->
+          value
+
+        :error ->
+          Map.get(default_values, key)
       end
     end
 
@@ -78,15 +91,19 @@ defmodule Cassette.Config do
   ```
 
   The value will be fetched from the `SOME_ENVIRONMENT_VARIABLE` variable.
-  If that variable is `nil`, the default value in `Cassette.Config.t` will be used
+  If that variable is `nil`, the default value in `Cassette.Config.t` will be
+  used
   """
   @spec resolve(t) :: t
   def resolve(config = %Cassette.Config{}) do
     default_values = %Cassette.Config{}
 
     resolve_env_var = fn
-      (key, {:system, var}) -> {key, System.get_env(var) || Map.get(default_values, key)}
-      (key, value) -> {key, value}
+      (key, {:system, var}) ->
+        {key, System.get_env(var) || Map.get(default_values, key)}
+
+      (key, value) ->
+        {key, value}
     end
 
     env_or_default = fn(map) ->

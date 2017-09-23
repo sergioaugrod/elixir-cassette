@@ -1,14 +1,15 @@
 defmodule Cassette.Support do
   @moduledoc """
-  This macro module allows you to create your own Cassette service with custom configurations
+  This macro module allows you to create your own Cassette service with custom
+  configurations
 
-  You can customize the (otp) application name with the `:process_name` key and provide your
-  configuration in the `:config` key.
+  You can customize the (otp) application name with the `:process_name` key and
+  provide your configuration in the `:config` key.
 
   ```elixir
   defmodule MyCas do
-    use Cassette.Support, process_name: :EmployeesCas,
-      config: %{ Cassette.Config.default | base_url: "https://employees-cas.example.org" }
+    use Cassette.Support, process_name: :EmployeesCas, config:
+      %{Cassette.Config.default | base_url: "https://employees-cas.example.org"}
   end
   ```
 
@@ -52,7 +53,8 @@ defmodule Cassette.Support do
       @doc false
       @spec child_spec() :: Supervisor.Spec.spec
       def child_spec do
-        {__MODULE__, {__MODULE__, :start, []}, :permanent, 5000, :worker, [__MODULE__]}
+        mod = __MODULE__
+        {mod, {mod, :start, []}, :permanent, 5000, :worker, [mod]}
       end
 
       @doc """
@@ -94,7 +96,8 @@ defmodule Cassette.Support do
       end
 
       @doc """
-      Validates a given `ticket` against the given `service` or the service set in the configuration
+      Validates a given `ticket` against the given `service` or the service set
+      in the configuration
       """
       @spec validate(String.t, String.t) :: {:ok, User.t} | {:error, term}
       def validate(ticket, service \\ config().service) do

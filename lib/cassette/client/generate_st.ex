@@ -19,11 +19,23 @@ defmodule Cassette.Client.GenerateSt do
   """
   @spec perform(Config.t, String.t, String.t) :: response
   def perform(config = %Config{base_url: base_url}, tgt, service) do
-    case post("#{base_url}/v1/tickets/#{tgt}", {:form, [service: service]}, [], Client.options(config)) do
-      {:ok, %HTTPoison.Response{status_code: 404}} -> {:error, :bad_tgt}
-      {:ok, %HTTPoison.Response{status_code: 200, body: body}} -> {:ok, body}
-      {:ok, %HTTPoison.Response{status_code: status_code, body: body}} -> {:fail, status_code, body}
-      _ -> {:fail, :unknown}
+    url = "#{base_url}/v1/tickets/#{tgt}"
+    options = Client.options(config)
+    params = {:form, [service: service]}
+    headers = []
+
+    case post(url, params, headers, options) do
+      {:ok, %HTTPoison.Response{status_code: 404}} ->
+        {:error, :bad_tgt}
+
+      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+        {:ok, body}
+
+      {:ok, %HTTPoison.Response{status_code: status_code, body: body}} ->
+        {:fail, status_code, body}
+
+      _ ->
+        {:fail, :unknown}
     end
   end
 end
