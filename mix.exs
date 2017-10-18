@@ -33,7 +33,8 @@ defmodule Cassette.Mixfile do
 
   def package do
     [
-      files: ["lib", "support", "mix.exs", "README.md", "LICENSE.md", "CONTRIBUTING.md"],
+      files: ["lib", "support", "mix.exs", "README.md", "LICENSE.md",
+              "CONTRIBUTING.md"],
       maintainers: ["Ricardo Hermida Ruiz"],
       licenses: ["MIT"],
       links: %{"GitHub" => "https://github.com/locaweb/elixir-cassette",
@@ -55,7 +56,8 @@ defmodule Cassette.Mixfile do
       {:exml, "~> 0.1"},
       {:ex_doc, "~> 0.11", only: :dev},
       {:earmark, "~> 1.0", only: :dev},
-      {:credo, "~> 0.3", only: [:dev, :test]},
+      {:credo, "~> 0.3", only: [:dev, :test], runtime: false},
+      {:dogma, "~> 0.1", only: [:dev, :test], runtime: false},
       {:fake_cas, "~> 1.1", only: [:dev, :test]},
       {:excoveralls, "~> 0.7", only: :test},
     ]
