@@ -2,6 +2,14 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.3.3] - 2017-12-20
+### Changed
+- Make spaces separating authorities optional
+
+## [1.3.2] - 2017-03-14
+### Changed
+- Updated dependencies
+
 ## [1.3.1] - 2017-01-12
 ### Changed
 - Removes compilation warnings on elixir 1.4.0
