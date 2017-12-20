@@ -42,7 +42,7 @@ defmodule Cassette.Authentication do
       |> Exml.get("//cas:authenticationSuccess/cas:attributes/cas:authorities")
       |> String.lstrip(?[)
       |> String.strip(?])
-      |> String.split(", ")
+      |> String.split(~r(,\s*))
 
     if login do
       {:ok, User.new(login, type || "", authorities)}

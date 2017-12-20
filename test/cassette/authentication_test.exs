@@ -24,6 +24,15 @@ defmodule Cassette.AuthenticationTest do
     assert {:ok, ^expected} = Authentication.handle_response(file_content)
   end
 
+  @tag file_name: "success_multiple_authorities.xml"
+  test "handle_response/1 handles authorities", %{file_content: file_content} do
+    {:ok, user} = Authentication.handle_response(file_content)
+    expected =
+      Enum.into(["ACME_ADMIN", "ACME_SOMETHING", "ACME_ELSE"], %MapSet{})
+
+    assert MapSet.equal?(expected, user.authorities)
+  end
+
   @tag file_name: "systems_success.xml"
   test "handle_response/1 returns {:ok, User} with empty user type", %{file_content: file_content} do
     expected = User.new("example", "", ["ACME_ADMIN"])
