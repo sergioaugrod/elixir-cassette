@@ -52,7 +52,7 @@ defmodule Cassette.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [
-      {:httpoison, "~> 0.8"},
+      {:httpoison, "~> 0.8 or ~> 1.0"},
       {:exml, "~> 0.1"},
       {:ex_doc, "~> 0.11", only: :dev},
       {:earmark, "~> 1.0", only: :dev},

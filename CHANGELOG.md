@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.3.4] - 2018-01-09
+### Changed
+- Allow usage of httpoison 1.0
+
 ## [1.3.3] - 2017-12-20
 ### Changed
 - Make spaces separating authorities optional
