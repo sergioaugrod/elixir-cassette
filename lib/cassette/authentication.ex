@@ -16,38 +16,52 @@ defmodule Cassette.Authentication do
   """
   @spec handle_response(String.t) :: {:ok, User.t} | {:error, String.t}
   def handle_response(body) do
-    xml = Exml.parse(body)
+    import SweetXml
+
+    xml = SweetXml.parse(body)
+
     failure = {
-      Exml.get(xml, "//cas:authenticationFailure"),
-      Exml.get(xml, "//cas:authenticationFailure/@code")
+      to_string(SweetXml.xpath(xml, ~x"//cas:authenticationFailure/text()"o)),
+      to_string(SweetXml.xpath(xml, ~x"//cas:authenticationFailure/@code"o))
     }
 
     case failure do
-      {nil, nil} ->
+      {"", ""} ->
         extract_user(xml)
 
       {reason, code} when is_binary(reason) ->
         {:error, "#{code}: #{String.strip(reason)}"}
-      {reason, code} when is_list(reason) ->
-        {:error, "#{code}: #{String.strip(Enum.join(reason, ""))}"}
     end
   end
 
   @spec extract_user(any) :: {:ok, User.t} | {:error}
   defp extract_user(xml) do
-    login = Exml.get(xml, "//cas:authenticationSuccess/cas:user")
-    type = Exml.get(xml, "//cas:authenticationSuccess/cas:attributes/cas:type")
-    authorities =
-      xml
-      |> Exml.get("//cas:authenticationSuccess/cas:attributes/cas:authorities")
-      |> String.lstrip(?[)
-      |> String.strip(?])
-      |> String.split(~r(,\s*))
+    import SweetXml
 
-    if login do
-      {:ok, User.new(login, type || "", authorities)}
+    login = xpath(xml, ~x"//cas:authenticationSuccess/cas:user/text()"os)
+
+    if login && login != "" do
+      attributes_path = "//cas:authenticationSuccess/cas:attributes"
+      mapping = [name: ~x"local-name()"s, value: ~x"text()"s]
+
+      all_attributes =
+        xml
+        |> xpath(~x"#{attributes_path}/*"l, mapping)
+        |> Enum.map(fn attr -> {attr.name, attr.value} end)
+        |> Enum.into(%{})
+
+      {special, attributes} = Map.split(all_attributes, ["authorities", "type"])
+
+      authorities =
+        special
+        |> Map.get("authorities", "")
+        |> String.lstrip(?[)
+        |> String.strip(?])
+        |> String.split(~r(,\s*))
+
+      {:ok, User.new(login, special["type"] || "", authorities, attributes)}
     else
-      {:error}
+      {:error, "invalid response from cas server"}
     end
   end
 end

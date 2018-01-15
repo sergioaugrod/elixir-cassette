@@ -27,7 +27,7 @@ defmodule Cassette.Mixfile do
   #
   # Type "mix help compile.app" for more information
   def application do
-    [applications: [:logger, :httpoison, :exml],
+    [applications: [:logger, :httpoison, :sweet_xml],
      mod: {Cassette, []}]
   end
 
@@ -53,9 +53,10 @@ defmodule Cassette.Mixfile do
   defp deps do
     [
       {:httpoison, "~> 0.8 or ~> 1.0"},
-      {:exml, "~> 0.1"},
+      {:sweet_xml, "~> 0.6.0"},
       {:ex_doc, "~> 0.11", only: :dev},
       {:earmark, "~> 1.0", only: :dev},
+      {:bypass, "~> 0.1", only: [:dev, :test]},
       {:credo, "~> 0.3", only: [:dev, :test], runtime: false},
       {:dogma, "~> 0.1", only: [:dev, :test], runtime: false},
       {:fake_cas, "~> 1.1", only: [:dev, :test]},

@@ -22,7 +22,8 @@ defmodule Cassette do
 
   iex> st = FakeCas.valid_st
   iex> Cassette.validate(st, "http://some.authenticated/url")
-  {:ok, Cassette.User.new("example", "customer", ["ACME_ADMIN"])}
+  {:ok, Cassette.User.new("example", "customer", ["ACME_ADMIN"],
+  %{"cn" => "John Smith"})}
 
   ```
 
@@ -80,7 +81,8 @@ defmodule Cassette do
 
   iex> st = FakeCas.valid_st
   iex> {:ok, _} = Cassette.validate(st, "some-service")
-  {:ok, Cassette.User.new("example", "customer", ["ACME_ADMIN"])}
+  {:ok, Cassette.User.new("example", "customer", ["ACME_ADMIN"],
+  %{"cn" => "John Smith"})}
 
   ```
 
