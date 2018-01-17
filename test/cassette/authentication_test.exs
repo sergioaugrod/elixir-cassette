@@ -9,19 +9,24 @@ defmodule Cassette.AuthenticationTest do
   end
 
   @tag file_name: "failure.xml"
-  test "handle_response/1 fails when authentication fail", %{file_content: file_content} do
-    assert {:error, "INVALID_SERVICE: ticket 'X' is invalid"} =  Authentication.handle_response(file_content)
+  test "handle_response/1 fails when authentication fail",
+    %{file_content: file_content} do
+    assert {:error, "INVALID_SERVICE: ticket 'X' is invalid"} =
+      Authentication.handle_response(file_content)
   end
 
   @tag file_name: "failure_no_special_chars.xml"
-  test "handle_response/1 fails when authentication fail with no special chars in body", %{file_content: file_content} do
-    assert {:error, "INVALID_SERVICE: ticket is invalid"} = Authentication.handle_response(file_content)
+  test "handle_response/1 fails when authentication fail with no special chars"
+    <> " in body", %{file_content: file_content} do
+    assert {:error, "INVALID_SERVICE: ticket is invalid"} =
+      Authentication.handle_response(file_content)
   end
 
   @tag file_name: "success.xml"
-  test "handle_response/1 returns {:ok, User} with the user type", %{file_content: file_content} do
-    expected = User.new("example", "employee", ["ACME_ADMIN"])
-    assert {:ok, ^expected} = Authentication.handle_response(file_content)
+  test "handle_response/1 returns {:ok, User} with the user type",
+    %{file_content: file_content} do
+    assert {:ok, %User{login: "example", type: "employee"}} =
+      Authentication.handle_response(file_content)
   end
 
   @tag file_name: "success_multiple_authorities.xml"
@@ -34,8 +39,26 @@ defmodule Cassette.AuthenticationTest do
   end
 
   @tag file_name: "systems_success.xml"
-  test "handle_response/1 returns {:ok, User} with empty user type", %{file_content: file_content} do
-    expected = User.new("example", "", ["ACME_ADMIN"])
-    assert {:ok, ^expected} = Authentication.handle_response(file_content)
+  test "handle_response/1 returns {:ok, User} with empty user type",
+    %{file_content: file_content} do
+    assert {:ok, %User{login: "example"}} =
+      Authentication.handle_response(file_content)
+  end
+
+  @tag file_name: "success.xml"
+  test "handle_response/1 parses user extra attributes",
+    %{file_content: file_content} do
+    assert {:ok, %User{attributes: attributes}} =
+      Authentication.handle_response(file_content)
+
+    assert %{"cn" => "John Smith"} == attributes
+  end
+
+  @tag file_name: "invalid_response.xml"
+  test "handle_response/1 returns error for an invalid response",
+    %{file_content: file_content} do
+
+    assert {:error, reason} = Authentication.handle_response(file_content)
+    assert reason =~ ~r/invalid response/
   end
 end

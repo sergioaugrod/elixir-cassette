@@ -5,7 +5,7 @@
     <!-- Begin Ldap Attributes -->
     <cas:attributes>
       <cas:authorities>[ACME_ADMIN]</cas:authorities>
-      <cas:cn>123123</cas:cn>
+      <cas:cn>example user</cas:cn>
     </cas:attributes>
     <!-- End Ldap Attributes -->
   </cas:authenticationSuccess>

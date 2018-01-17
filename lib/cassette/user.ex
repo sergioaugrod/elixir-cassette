@@ -6,9 +6,9 @@ defmodule Cassette.User do
   alias Cassette.User
   alias Cassette.Config
 
-  defstruct login: "", type: "", authorities: MapSet.new([])
+  defstruct login: "", type: "", attributes: %{}, authorities: MapSet.new([])
 
-  @type t :: %__MODULE__{login: String.t}
+  @type t :: %__MODULE__{login: String.t, attributes: map()}
 
   @doc """
   Initializes a `Cassette.User` struct, mapping the list of authorities to it's
@@ -26,6 +26,16 @@ defmodule Cassette.User do
   @spec new(String.t, String.t, [String.t]) :: User.t
   def new(login, type, authorities) do
     %User{login: login, type: String.downcase(type),
+          authorities: MapSet.new(authorities)}
+  end
+
+  @doc """
+  Initializes a `Cassette.User` struct, with a `type` attribute, mapping the
+  list of authorities, and any extra attribute returned by the server
+  """
+  @spec new(String.t, String.t, [String.t], map()) :: User.t
+  def new(login, type, authorities, attributes) do
+    %User{login: login, type: String.downcase(type), attributes: attributes,
           authorities: MapSet.new(authorities)}
   end
 
