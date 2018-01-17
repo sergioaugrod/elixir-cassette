@@ -26,7 +26,7 @@ defmodule Cassette.Support do
       use Application
 
       @name opts[:process_name] || :CassetteServer
-      @config opts[:config]
+      @config opts[:config] || %{}
 
       @doc false
       @spec start(term, term) :: GenServer.on_start
@@ -37,8 +37,13 @@ defmodule Cassette.Support do
       def start do
         import Supervisor.Spec
 
+        config =
+          Config.default
+          |> Map.merge(@config)
+          |> Config.resolve()
+
         children = [
-          worker(Server, [@name, @config])
+          worker(Server, [@name, config])
         ]
 
         options = [strategy: :one_for_one, name: :"#{@name}.Supervisor"]
@@ -50,11 +55,63 @@ defmodule Cassette.Support do
         end
       end
 
-      @doc false
+      @doc """
+      Elixir 1.5+ compatible child spec.
+
+      If you are adding a custom cassette instance, you can add to your
+      supervision tree by using:
+
+      ```elixir
+
+      defmodule MyCas do
+        use Cassette.Support, process_name: :MyCas
+      end
+
+      children = [
+        # ...
+        MyCas
+      ]
+
+      Supervisor.start_link(children, ...)
+      ```
+
+      """
+      @spec child_spec(term) :: :supervisor.child_spec()
+      def child_spec(_opts) do
+        %{
+          id: @name,
+          start: {__MODULE__, :start, []},
+          restart: :permanent,
+          type: :supervisor
+        }
+      end
+
+      @doc """
+      Generates a child spec for a custom Cassette module for Elixir < 1.5
+
+      If you are adding a custom cassette instance, you can add to your
+      supervision tree by using:
+
+      ```elixir
+
+      defmodule MyCas do
+        use Cassette.Support, process_name: :MyCas
+      end
+
+      children = [
+        # ...
+        MyCas.child_spec
+      ]
+
+      Supervisor.start_link(children, ...)
+      ```
+
+      """
+
       @spec child_spec() :: Supervisor.Spec.spec
       def child_spec do
         mod = __MODULE__
-        {mod, {mod, :start, []}, :permanent, 5000, :worker, [mod]}
+        {mod, {mod, :start, []}, :permanent, :infinity, :supervisor, [mod]}
       end
 
       @doc """
