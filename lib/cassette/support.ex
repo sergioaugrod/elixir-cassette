@@ -35,14 +35,14 @@ defmodule Cassette.Support do
         GenServer.stop(@name)
       end
 
-      @spec start() :: GenServer.on_start
+      @spec start() :: GenServer.on_start()
       def start do
         config =
-          Config.default
+          Config.default()
           |> Map.merge(@config)
           |> Config.resolve()
 
-        version(">= 1.5.0") do
+        version ">= 1.5.0" do
           children = [{Server, [@name, config]}]
         else
           import Supervisor.Spec
@@ -111,7 +111,7 @@ defmodule Cassette.Support do
 
       """
 
-      @spec child_spec() :: Supervisor.Spec.spec
+      @spec child_spec() :: Supervisor.Spec.spec()
       def child_spec do
         mod = __MODULE__
         {mod, {mod, :start, []}, :permanent, :infinity, :supervisor, [mod]}
@@ -124,7 +124,7 @@ defmodule Cassette.Support do
 
       Please refer to `Cassette.Config.t` for details
       """
-      @spec config :: Config.t
+      @spec config :: Config.t()
       def config do
         Server.config(@name)
       end
@@ -132,7 +132,7 @@ defmodule Cassette.Support do
       @doc """
       Generates a Ticket Granting Ticket
       """
-      @spec tgt :: {:ok, String.t} | {:error, term}
+      @spec tgt :: {:ok, String.t()} | {:error, term}
       def tgt do
         Server.tgt(@name)
       end
@@ -142,9 +142,10 @@ defmodule Cassette.Support do
 
       This function retries once when the TGT is expired on the server side.
       """
-      @spec st(String.t) :: {:ok, String.t} | {:error, term}
+      @spec st(String.t()) :: {:ok, String.t()} | {:error, term}
       def st(service) do
         {:ok, current_tgt} = tgt()
+
         case Server.st(@name, current_tgt, service) do
           {:error, :tgt_expired} ->
             {:ok, new_tgt} = tgt()
@@ -159,14 +160,14 @@ defmodule Cassette.Support do
       Validates a given `ticket` against the given `service` or the service set
       in the configuration
       """
-      @spec validate(String.t, String.t) :: {:ok, User.t} | {:error, term}
+      @spec validate(String.t(), String.t()) :: {:ok, User.t()} | {:error, term}
       def validate(ticket, service \\ config().service) do
         Server.validate(@name, ticket, service)
       end
 
       @doc false
-      @spec reload(Config.t) :: term
-      def reload(cfg \\ Config.default) do
+      @spec reload(Config.t()) :: term
+      def reload(cfg \\ Config.default()) do
         Server.reload(@name, cfg)
       end
     end

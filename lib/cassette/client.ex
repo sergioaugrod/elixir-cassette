@@ -15,7 +15,7 @@ defmodule Cassette.Client do
 
   Checkout `Cassette.Client.GenerateTgt.perform/1` for details on responses
   """
-  @spec tgt(Config.t) :: GenerateTgt.response
+  @spec tgt(Config.t()) :: GenerateTgt.response()
   def tgt(config) do
     GenerateTgt.perform(config)
   end
@@ -26,13 +26,13 @@ defmodule Cassette.Client do
 
   Checkout `Cassette.Client.GenerateSt.perform/3` for details on responses
   """
-  @spec st(Config.t, String.t, String.t) :: GenerateSt.response
+  @spec st(Config.t(), String.t(), String.t()) :: GenerateSt.response()
   def st(config, current_tgt, service) do
     GenerateSt.perform(config, current_tgt, service)
   end
 
   @doc false
-  @spec options(Config.t) :: []
+  @spec options(Config.t()) :: []
   def options(config) do
     if config.insecure do
       [hackney: [:insecure]]

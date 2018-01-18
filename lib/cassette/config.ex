@@ -3,9 +3,15 @@ defmodule Cassette.Config do
   Struct that represents Cassette configuration
   """
 
-  defstruct username: "", password: "", base_url: "", base_authority: "",
-    service: "", tgt_ttl: 14_400, st_ttl: 252, validation_ttl: 300,
-    insecure: false
+  defstruct username: "",
+            password: "",
+            base_url: "",
+            base_authority: "",
+            service: "",
+            tgt_ttl: 14_400,
+            st_ttl: 252,
+            validation_ttl: 300,
+            insecure: false
 
   @typedoc """
   The following keys are supported and may be defined in your application env
@@ -49,11 +55,16 @@ defmodule Cassette.Config do
   Please check the `Cassette.Config.default/0` function.
 
   """
-  @type t :: %__MODULE__{username: String.t, password: String.t,
-                         base_url: String.t, base_authority: String.t,
-                         service: String.t, tgt_ttl: non_neg_integer(),
-                         st_ttl: non_neg_integer(),
-                         validation_ttl: non_neg_integer()}
+  @type t :: %__MODULE__{
+          username: String.t(),
+          password: String.t(),
+          base_url: String.t(),
+          base_authority: String.t(),
+          service: String.t(),
+          tgt_ttl: non_neg_integer(),
+          st_ttl: non_neg_integer(),
+          validation_ttl: non_neg_integer()
+        }
 
   @doc """
   Returns a configuration based on what is set in application environment and
@@ -64,7 +75,8 @@ defmodule Cassette.Config do
   @spec default() :: t
   def default do
     default_values = %Cassette.Config{}
-    env_or_default = fn(key) ->
+
+    env_or_default = fn key ->
       case Application.fetch_env(:cassette, key) do
         {:ok, {:system, var}} ->
           System.get_env(var) || Map.get(default_values, key)
@@ -78,8 +90,8 @@ defmodule Cassette.Config do
     end
 
     default_values
-    |> Map.keys
-    |> Enum.reduce(default_values, &(Map.put(&2, &1, env_or_default.(&1))))
+    |> Map.keys()
+    |> Enum.reduce(default_values, &Map.put(&2, &1, env_or_default.(&1)))
   end
 
   @doc """
@@ -99,20 +111,20 @@ defmodule Cassette.Config do
     default_values = %Cassette.Config{}
 
     resolve_env_var = fn
-      (key, {:system, var}) ->
+      key, {:system, var} ->
         {key, System.get_env(var) || Map.get(default_values, key)}
 
-      (key, value) ->
+      key, value ->
         {key, value}
     end
 
-    env_or_default = fn(map) ->
-      fn(key) ->
+    env_or_default = fn map ->
+      fn key ->
         resolve_env_var.(key, Map.get(map, key))
       end
     end
 
-    config |> Map.keys |> Enum.map(env_or_default.(config)) |> Enum.into(%{})
+    config |> Map.keys() |> Enum.map(env_or_default.(config)) |> Enum.into(%{})
   end
 
   def resolve(nil), do: default()

@@ -18,44 +18,46 @@ defmodule Cassette.Server do
 
   @typep tgt_request :: {:tgt, non_neg_integer()}
 
-  @typep st_request :: {:st, String.t, String.t, non_neg_integer()}
+  @typep st_request :: {:st, String.t(), String.t(), non_neg_integer()}
 
-  @typep validate_request :: {:validate, String.t, String.t, non_neg_integer()}
+  @typep validate_request :: {:validate, String.t(), String.t(), non_neg_integer()}
 
-  @typep reload_request :: {:reload, Config.t}
+  @typep reload_request :: {:reload, Config.t()}
 
   @typep config_request :: {:config}
 
-  @typep cassette_request :: tgt_request
-                           | st_request
-                           | validate_request
-                           | config_request
-                           | reload_request
+  @typep cassette_request ::
+           tgt_request
+           | st_request
+           | validate_request
+           | config_request
+           | reload_request
 
-  @typep tgt_reply :: {:ok, String.t} | {:error, term}
+  @typep tgt_reply :: {:ok, String.t()} | {:error, term}
 
-  @typep st_reply :: {:ok, String.t} | {:error, term}
+  @typep st_reply :: {:ok, String.t()} | {:error, term}
 
-  @typep validate_reply :: {:ok, User.t} | {:error, term}
+  @typep validate_reply :: {:ok, User.t()} | {:error, term}
 
   @typep reload_reply :: :ok
 
-  @typep config_reply :: Config.t
+  @typep config_reply :: Config.t()
 
-  @typep cassette_reply :: tgt_reply
-                         | st_reply
-                         | validate_reply
-                         | config_reply
-                         | reload_reply
+  @typep cassette_reply ::
+           tgt_reply
+           | st_reply
+           | validate_reply
+           | config_reply
+           | reload_reply
 
   @doc false
-  @spec start_link(term, Config.t) :: GenServer.on_start
+  @spec start_link(term, Config.t()) :: GenServer.on_start()
   def start_link(name, config) do
     GenServer.start_link(__MODULE__, {:ok, config}, name: name)
   end
 
   @doc false
-  @spec start_link(Config.t) :: GenServer.on_start
+  @spec start_link(Config.t()) :: GenServer.on_start()
   def start_link(config) do
     GenServer.start_link(__MODULE__, {:ok, config})
   end
@@ -70,8 +72,9 @@ defmodule Cassette.Server do
   @doc """
   Validates a `ticket` for the given `service`
   """
-  @spec validate(GenServer.server, String.t, String.t) :: {:ok, User.t}
-                                                        | {:error, term}
+  @spec validate(GenServer.server(), String.t(), String.t()) ::
+          {:ok, User.t()}
+          | {:error, term}
   def validate(server, ticket, service) do
     GenServer.call(server, {:validate, ticket, service, time_now()})
   end
@@ -79,7 +82,7 @@ defmodule Cassette.Server do
   @doc """
   Generates a Ticket Granting Ticket based on the configuration of the `server`
   """
-  @spec tgt(GenServer.server) :: {:ok, String.t} | {:error, term}
+  @spec tgt(GenServer.server()) :: {:ok, String.t()} | {:error, term}
   def tgt(server) do
     GenServer.call(server, {:tgt, time_now()})
   end
@@ -88,8 +91,9 @@ defmodule Cassette.Server do
   Generates Service Ticket based on the configuration of the `server` and the
   given `tgt`
   """
-  @spec st(GenServer.server, String.t, String.t) :: {:ok, String.t}
-                                                  | {:error, term}
+  @spec st(GenServer.server(), String.t(), String.t()) ::
+          {:ok, String.t()}
+          | {:error, term}
   def st(server, current_tgt, service) do
     GenServer.call(server, {:st, current_tgt, service, time_now()})
   end
@@ -97,7 +101,7 @@ defmodule Cassette.Server do
   @doc """
   Returns this server's current configuration
   """
-  @spec config(GenServer.server) :: Config.t
+  @spec config(GenServer.server()) :: Config.t()
   def config(server) do
     GenServer.call(server, {:config})
   end
@@ -105,7 +109,7 @@ defmodule Cassette.Server do
   @doc """
   Initializes the server with the given configuration
   """
-  @spec init({:ok, Config.t}) :: {:ok, State.t}
+  @spec init({:ok, Config.t()}) :: {:ok, State.t()}
   def init({:ok, config}) do
     {:ok, %State{config: Config.resolve(config)}}
   end
@@ -113,21 +117,23 @@ defmodule Cassette.Server do
   @doc """
   Changes the internal state configuration to `config`
   """
-  @spec reload(GenServer.server, Config.t) :: term
+  @spec reload(GenServer.server(), Config.t()) :: term
   def reload(server, config) do
     GenServer.call(server, {:reload, config})
   end
 
-  @spec handle_call(cassette_request, GenServer.from, State.t) ::
-    {:reply, cassette_reply, State.t}
-  def handle_call({:validate, ticket, service, now}, _from,
-    state = %State{validations: validations, config: config}) do
+  @spec handle_call(cassette_request, GenServer.from(), State.t()) ::
+          {:reply, cassette_reply, State.t()}
+  def handle_call(
+        {:validate, ticket, service, now},
+        _from,
+        state = %State{validations: validations, config: config}
+      ) do
     cached_value = Map.get(validations, {service, ticket})
 
     case evaluate_validation(config, service, ticket, cached_value, now) do
       {:ok, user, expires_at} ->
-        new_state = State.put_validation(state,
-          {service, ticket}, {user, expires_at})
+        new_state = State.put_validation(state, {service, ticket}, {user, expires_at})
         {:reply, {:ok, user}, new_state}
 
       reply ->
@@ -139,9 +145,11 @@ defmodule Cassette.Server do
     {:reply, config, state}
   end
 
-  def handle_call({:st, current_tgt, service, now}, _from,
-    state = %State{config: config, tgt: {:tgt, _, current_tgt}, sts: sts}) do
-
+  def handle_call(
+        {:st, current_tgt, service, now},
+        _from,
+        state = %State{config: config, tgt: {:tgt, _, current_tgt}, sts: sts}
+      ) do
     cached_value = Map.get(sts, service)
 
     case evaluate_st(config, current_tgt, service, cached_value, now) do
@@ -157,9 +165,8 @@ defmodule Cassette.Server do
     end
   end
 
-  def handle_call({:tgt, now}, _from,
-    state = %State{config: config, tgt: current_tgt})
-  when now > elem(current_tgt, 1) do
+  def handle_call({:tgt, now}, _from, state = %State{config: config, tgt: current_tgt})
+      when now > elem(current_tgt, 1) do
     case Client.tgt(config) do
       {:ok, new_tgt} ->
         new_state = State.put_tgt(state, new_tgt, time_now() + config.tgt_ttl)
@@ -185,20 +192,21 @@ defmodule Cassette.Server do
     {:reply, :ok, state}
   end
 
-  @spec evaluate_validation(Config.t, String.t, String.t, State.st,
-    non_neg_integer()) :: {:ok, User.t, non_neg_integer()}
+  @spec evaluate_validation(Config.t(), String.t(), String.t(), State.st(), non_neg_integer()) ::
+          {:ok, User.t(), non_neg_integer()}
   defp evaluate_validation(_, _, _, {user, expires_at}, now)
-  when now < expires_at do
+       when now < expires_at do
     {:ok, user, expires_at}
   end
 
-  @spec evaluate_validation(Config.t, String.t, String.t, State.st,
-    non_neg_integer()) :: {:ok, User.t, non_neg_integer()} | {:error, term}
+  @spec evaluate_validation(Config.t(), String.t(), String.t(), State.st(), non_neg_integer()) ::
+          {:ok, User.t(), non_neg_integer()} | {:error, term}
   defp evaluate_validation(config, service, ticket, _, _) do
-    reply = case ValidateTicket.perform(config, ticket, service) do
-      {:ok, body} -> Authentication.handle_response(body)
-      {:fail, reason} -> {:error, reason}
-    end
+    reply =
+      case ValidateTicket.perform(config, ticket, service) do
+        {:ok, body} -> Authentication.handle_response(body)
+        {:fail, reason} -> {:error, reason}
+      end
 
     case reply do
       {:ok, user} -> {:ok, user, time_now() + config.validation_ttl}
@@ -206,25 +214,25 @@ defmodule Cassette.Server do
     end
   end
 
-  @spec evaluate_st(Config.t, String.t, String.t, State.st, non_neg_integer())
-    :: {:ok, String.t, non_neg_integer()}
+  @spec evaluate_st(Config.t(), String.t(), String.t(), State.st(), non_neg_integer()) ::
+          {:ok, String.t(), non_neg_integer()}
   defp evaluate_st(_, _, _, {current_st, expires_at}, now)
-  when now < expires_at do
+       when now < expires_at do
     {:ok, current_st, expires_at}
   end
 
-  @spec evaluate_st(Config.t, String.t, String.t, State.st, non_neg_integer())
-    :: {:ok, String.t, non_neg_integer()} | {:error, term}
+  @spec evaluate_st(Config.t(), String.t(), String.t(), State.st(), non_neg_integer()) ::
+          {:ok, String.t(), non_neg_integer()} | {:error, term}
   defp evaluate_st(config, current_tgt, service, _, _) do
     case Client.st(config, current_tgt, service) do
       {:ok, new_st} ->
         {:ok, new_st, time_now() + config.st_ttl}
 
       {:error, :bad_tgt} ->
-          {:error, :tgt_expired}
+        {:error, :tgt_expired}
 
       {:fail, status_code, body} ->
-         {:error, "Failed with status #{status_code}: #{body}"}
+        {:error, "Failed with status #{status_code}: #{body}"}
 
       {:fail, :unknown} ->
         {:error, "Failed for unknown reason"}
@@ -233,6 +241,6 @@ defmodule Cassette.Server do
 
   @spec time_now :: non_neg_integer()
   defp time_now do
-    :calendar.datetime_to_gregorian_seconds(:calendar.local_time)
+    :calendar.datetime_to_gregorian_seconds(:calendar.local_time())
   end
 end

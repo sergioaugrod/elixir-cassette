@@ -9,24 +9,24 @@ defmodule Cassette.Client.GenerateTgt do
   alias Cassette.Client
   alias HTTPoison.Response
 
-  @type response :: {:error, :bad_credentials}
-                  | {:ok, String.t}
-                  | {:fail, pos_integer()}
-                  | {:fail, :unknown}
+  @type response ::
+          {:error, :bad_credentials}
+          | {:ok, String.t()}
+          | {:fail, pos_integer()}
+          | {:fail, :unknown}
 
-  @spec process_headers([{String.t, String.t}]) :: %{String.t => String.t}
+  @spec process_headers([{String.t(), String.t()}]) :: %{String.t() => String.t()}
   defp process_headers(headers) do
-    Enum.into headers, %{}, fn({k, v}) ->
+    Enum.into(headers, %{}, fn {k, v} ->
       {String.downcase(k), v}
-    end
+    end)
   end
 
   @doc """
   Do request to cas service to get a ticket granting tickets from user
   """
-  @spec perform(Config.t) :: response
-  def perform(config =
-    %Config{username: username, password: password, base_url: base_url}) do
+  @spec perform(Config.t()) :: response
+  def perform(config = %Config{username: username, password: password, base_url: base_url}) do
     form_data = {:form, [username: username, password: password]}
     url = "#{base_url}/v1/tickets"
     headers = %{accept: "*/*"}
@@ -47,7 +47,7 @@ defmodule Cassette.Client.GenerateTgt do
     end
   end
 
-  @spec extract_tgt(String.t, String.t) :: String.t
+  @spec extract_tgt(String.t(), String.t()) :: String.t()
   defp extract_tgt(base_url, location) when is_binary(location) do
     String.replace_leading(location, "#{base_url}/v1/tickets/", "")
   end

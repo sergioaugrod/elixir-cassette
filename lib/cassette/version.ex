@@ -10,12 +10,15 @@ defmodule Cassette.Version do
 
   The else block is optional and defaults to doing nothing.
   """
-  defmacro version(condition, [do: do_fun, else: else_fun]) do
-    if(System.version |> Version.parse! |> Version.match?(condition),
-        do: do_fun, else: else_fun)
+  defmacro version(condition, do: do_fun, else: else_fun) do
+    if(
+      System.version() |> Version.parse!() |> Version.match?(condition),
+      do: do_fun,
+      else: else_fun
+    )
   end
 
-  defmacro version(condition, [do: do_fun]) do
+  defmacro version(condition, do: do_fun) do
     quote do
       version(unquote(condition), do: unquote(do_fun), else: nil)
     end
