@@ -5,12 +5,16 @@ defmodule Cassette.Server do
 
   use GenServer
 
+  import Cassette.Version, only: [version: 2]
+
   alias Cassette.Authentication
   alias Cassette.Client
   alias Cassette.Client.ValidateTicket
   alias Cassette.Config
   alias Cassette.Server.State
   alias Cassette.User
+
+  require Cassette.Version
 
   @typep tgt_request :: {:tgt, non_neg_integer()}
 
@@ -48,6 +52,19 @@ defmodule Cassette.Server do
   @spec start_link(term, Config.t) :: GenServer.on_start
   def start_link(name, config) do
     GenServer.start_link(__MODULE__, {:ok, config}, name: name)
+  end
+
+  @doc false
+  @spec start_link(Config.t) :: GenServer.on_start
+  def start_link(config) do
+    GenServer.start_link(__MODULE__, {:ok, config})
+  end
+
+  version(">= 1.5.0") do
+    def child_spec([name, config = %Config{}]) do
+      defaults = %{id: name, start: {__MODULE__, :start_link, [name, config]}}
+      Supervisor.child_spec(defaults, [])
+    end
   end
 
   @doc """

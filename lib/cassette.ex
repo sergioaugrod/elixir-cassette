@@ -99,4 +99,12 @@ defmodule Cassette do
 
   use Cassette.Support
   use Application
+
+  @impl Application
+  def start(_, _), do: start()
+
+  @impl Application
+  def stop(_state) do
+    GenServer.stop(@name)
+  end
 end

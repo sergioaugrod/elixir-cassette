@@ -21,30 +21,33 @@ defmodule Cassette.Support do
   alias Cassette.Server
   alias Cassette.User
 
+  import Cassette.Version, only: [version: 2]
+
+  require Cassette.Version
+
   defmacro __using__(opts \\ []) do
     quote bind_quoted: [opts: opts] do
-      use Application
-
       @name opts[:process_name] || :CassetteServer
       @config opts[:config] || %{}
 
-      @doc false
-      @spec start(term, term) :: GenServer.on_start
-      def start(_, _), do: start()
+      @spec stop(term) :: term
+      def stop(_state) do
+        GenServer.stop(@name)
+      end
 
-      @doc false
       @spec start() :: GenServer.on_start
       def start do
-        import Supervisor.Spec
-
         config =
           Config.default
           |> Map.merge(@config)
           |> Config.resolve()
 
-        children = [
-          worker(Server, [@name, config])
-        ]
+        version(">= 1.5.0") do
+          children = [{Server, [@name, config]}]
+        else
+          import Supervisor.Spec
+          children = [worker(Server, [@name, config])]
+        end
 
         options = [strategy: :one_for_one, name: :"#{@name}.Supervisor"]
 

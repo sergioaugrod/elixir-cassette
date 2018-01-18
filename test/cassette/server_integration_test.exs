@@ -5,11 +5,9 @@ defmodule Cassette.ServerIntegrationTest do
 
   setup do
     config = FakeCas.Support.config
-    invalid_config = %{config | username: "x"}
+    {:ok, pid} = Cassette.Server.start_link(config)
 
-    {:ok, pid} = Cassette.Server.start_link(:CassetteIntegrationTest, config)
-    {:ok, invalid_pid} = Cassette.Server.start_link(:CassetteIntegrationTestWithInvalidConfig, invalid_config)
-    {:ok, [pid: pid, config: config, invalid_pid: invalid_pid]}
+    {:ok, [pid: pid, config: config]}
   end
 
   test "returns its configuration", %{pid: pid, config: config} do
