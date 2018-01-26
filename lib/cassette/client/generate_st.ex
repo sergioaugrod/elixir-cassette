@@ -8,16 +8,17 @@ defmodule Cassette.Client.GenerateSt do
   alias Cassette.Config
   alias Cassette.Client
 
-  @type response :: {:error, :bad_tgt}
-                  | {:ok, String.t}
-                  | {:fail, pos_integer(), String.t}
-                  | {:fail, :unknown}
+  @type response ::
+          {:error, :bad_tgt}
+          | {:ok, String.t()}
+          | {:fail, pos_integer(), String.t()}
+          | {:fail, :unknown}
 
   @doc """
   Do request to cas service to get a service ticket from ticket granting
   tickets
   """
-  @spec perform(Config.t, String.t, String.t) :: response
+  @spec perform(Config.t(), String.t(), String.t()) :: response
   def perform(config = %Config{base_url: base_url}, tgt, service) do
     url = "#{base_url}/v1/tickets/#{tgt}"
     options = Client.options(config)

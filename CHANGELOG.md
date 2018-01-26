@@ -7,6 +7,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - `Cassette.User.t` now maps all CAS attributes
 - Generate a Elixir 1.5+ compatible `child_spec/1` on `Cassette.Support` macro
 
+### Fixed
+- Compilation warnings on 1.5+
+
 ## [1.3.4] - 2018-01-09
 ### Changed
 - Allow usage of httpoison 1.0
