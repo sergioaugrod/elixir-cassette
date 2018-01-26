@@ -1,7 +1,7 @@
 defmodule Cassette.Mixfile do
   use Mix.Project
 
-  def version, do: "1.3.4"
+  def version, do: "1.4.0"
 
   def project do
     [app: :cassette,
@@ -33,8 +33,7 @@ defmodule Cassette.Mixfile do
 
   def package do
     [
-      files: ["lib", "support", "mix.exs", "README.md", "LICENSE.md",
-              "CONTRIBUTING.md"],
+      files: ["lib", "mix.exs", "README.md", "LICENSE.md", "CONTRIBUTING.md"],
       maintainers: ["Ricardo Hermida Ruiz"],
       licenses: ["MIT"],
       links: %{"GitHub" => "https://github.com/locaweb/elixir-cassette",
