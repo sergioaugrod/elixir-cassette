@@ -62,7 +62,7 @@ defmodule Cassette.Server do
     GenServer.start_link(__MODULE__, {:ok, config})
   end
 
-  version(">= 1.5.0") do
+  version ">= 1.5.0" do
     def child_spec([name, config = %Config{}]) do
       defaults = %{id: name, start: {__MODULE__, :start_link, [name, config]}}
       Supervisor.child_spec(defaults, [])
