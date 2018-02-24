@@ -178,6 +178,9 @@ defmodule Cassette.Server do
       {:fail, :unknown} ->
         {:reply, {:error, "Failed for unknown reason"}, state}
 
+      {:fail, reason} when is_atom(reason) ->
+        {:reply, {:error, "Failed because #{reason}"}, state}
+
       {:fail, status_code} ->
         {:reply, {:error, "Failed with status #{status_code}"}, state}
     end
@@ -236,6 +239,9 @@ defmodule Cassette.Server do
 
       {:fail, :unknown} ->
         {:error, "Failed for unknown reason"}
+
+      {:fail, reason} ->
+        {:error, "Failed because #{reason}"}
     end
   end
 
