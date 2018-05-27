@@ -25,6 +25,8 @@ defmodule Cassette.Support do
 
   require Cassette.Version
 
+  @type t :: module()
+
   defmacro __using__(opts \\ []) do
     quote bind_quoted: [opts: opts] do
       @name opts[:process_name] || :CassetteServer
