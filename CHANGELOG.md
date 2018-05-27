@@ -4,6 +4,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## UNRELEASED
 
+## [1.4.1] - 2018-05-27
+### Added
+- Make `Cassette.Support.t` type to help dialyzer
+
 ## [1.4.0] - 2018-01-26
 ### Added
 - `Cassette.User.t` now maps all CAS attributes

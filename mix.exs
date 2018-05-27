@@ -1,7 +1,7 @@
 defmodule Cassette.Mixfile do
   use Mix.Project
 
-  def version, do: "1.4.0"
+  def version, do: "1.4.1"
 
   def project do
     [app: :cassette,
