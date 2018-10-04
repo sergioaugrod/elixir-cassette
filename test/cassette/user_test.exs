@@ -5,14 +5,14 @@ defmodule Cassette.UserTest do
   alias Cassette.Config
 
   test "has_role?/2 returns true when the user has the authority" do
-    config = Config.default
+    config = Config.default()
     user = User.new("example", ["#{config.base_authority}_BLA"])
 
     assert User.has_role?(user, "BLA")
   end
 
   test "has_role?/2 returns false when the user does not have the authority" do
-    config = Config.default
+    config = Config.default()
     user = User.new("example", ["#{config.base_authority}_BLA"])
 
     refute User.has_role?(user, "BLI")
