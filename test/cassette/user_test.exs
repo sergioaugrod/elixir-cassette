@@ -1,8 +1,8 @@
 defmodule Cassette.UserTest do
   use ExUnit.Case, async: true
 
-  alias Cassette.User
   alias Cassette.Config
+  alias Cassette.User
 
   test "has_role?/2 returns true when the user has the authority" do
     config = Config.default()

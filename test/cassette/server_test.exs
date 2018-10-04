@@ -1,8 +1,8 @@
 defmodule Cassette.ServerTest do
   use ExUnit.Case, async: true
 
-  alias Cassette.Server
   alias Cassette.Config
+  alias Cassette.Server
   alias Server.State
 
   setup do
